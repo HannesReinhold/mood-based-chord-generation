@@ -1,33 +1,43 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+using System.Numerics;
 
 public class WavetableOscillator
 {
-    public float gain;
-    public float frequency;
-    public float startPhase;
+    // basic params
+    public float gain = 1;
+    public float frequency = 440f;
+    public float startPhase = 0;
+
+    // voices
+    public int maxNumVoices = 16;
+    public int numVoices = 1;
+    public float detune = 0;
+    public float randomPhase = 0;
+    public bool restartPhase = true;
+    
 
 
-    private float increment;
-    private float phase;
+    public int oversampling = 1;
+
+
+    
+    private float[] increment;
+    private float[] phase;
 
     private float sampleRate;
 
+    private int wavetableSize = 1024;
     private float[] waveTable;
 
-    private float[] waveTable2;
-    private float[] waveTable4;
-    private float[] waveTable8;
-    private float[] waveTable16;
+    private float[,] antializedWaveTable;
 
+    
+    private int wavetableID=0;
 
-    private int wavetableSize = 1024;
-
-    public int oversampling = 4;
-
-    private Biquad lowpass;
-    private Biquad[] antialiazingfilters = new Biquad[4];
+    
 
     public WavetableOscillator(float sampleR)
     {
@@ -35,16 +45,13 @@ public class WavetableOscillator
         frequency = 440f;
         startPhase = 0.0f;
 
-        increment = 0.0f;
-        phase = 0.0f;
+        increment = new float[maxNumVoices];
+        phase = new float[maxNumVoices];
 
         sampleRate = sampleR;
 
-        lowpass = new Biquad();
-        lowpass.SetCoeffs(0.1f, 0.7f, 1);
-
         Reset();
-        SetSaw();
+        SetSquare();
 
         
     }
@@ -52,91 +59,131 @@ public class WavetableOscillator
     public void SetSaw()
     {
         waveTable = new float[wavetableSize];
-        waveTable2 = new float[wavetableSize];
-        waveTable4 = new float[wavetableSize];
-        waveTable8 = new float[wavetableSize];
-        waveTable16 = new float[wavetableSize];
 
-        antialiazingfilters = new Biquad[4];
-        for (int j = 0; j < 4; j++)
-        {
-            antialiazingfilters[j] = new Biquad();
-            antialiazingfilters[j].SetCoeffs(0.5f,0.7f,0);
-        }
         for (int i=0; i<wavetableSize; i++)
         {
             waveTable[i] = Mathf.Lerp(1, -1, (float)i / (wavetableSize - 1));
-            for (int j = 0; j < 4; j++)
-            {
-                waveTable[i] = antialiazingfilters[j].Process(waveTable[i]);
-            }
+
         }
 
-        for (int j = 0; j < 4; j++)
-        {
-            antialiazingfilters[j].SetCoeffs(0.25f, 0.7f, 0);
-        }
 
-        for (int i=0; i< wavetableSize; i++)
-        {
-            for (int j = 0; j < 4; j++)
-            {
-                waveTable2[i] = antialiazingfilters[j].Process(waveTable[i]);
-            }
-        }
+        Antialiazing();
+    }
 
-        for (int j = 0; j < 4; j++)
-        {
-            antialiazingfilters[j].SetCoeffs(0.125f, 0.7f, 0);
-        }
+    public void SetSquare()
+    {
+        waveTable = new float[wavetableSize];
 
         for (int i = 0; i < wavetableSize; i++)
         {
-            for (int j = 0; j < 4; j++)
-            {
-                waveTable4[i] = antialiazingfilters[j].Process(waveTable[i]);
-            }
+            waveTable[i] = i>=wavetableSize/2 ? 1 : -1;
+
         }
 
-        for (int j = 0; j < 4; j++)
-        {
-            antialiazingfilters[j].SetCoeffs(0.25f/4f, 0.7f, 0);
-        }
+
+        Antialiazing();
+    }
+
+    public void SetSine()
+    {
+        waveTable = new float[wavetableSize];
 
         for (int i = 0; i < wavetableSize; i++)
         {
-            for (int j = 0; j < 4; j++)
+            waveTable[i] = Mathf.Sin((float)i/wavetableSize * 2 * Mathf.PI);
+
+        }
+
+
+        Antialiazing();
+    }
+
+    private void Antialiazing()
+    {
+
+        antializedWaveTable = new float[8, wavetableSize];
+
+        for (int j = 0; j < 8; j++)
+        {
+            Complex[] complexWaveTable = new Complex[wavetableSize];
+
+            for (int i = 0; i < wavetableSize; i++)
             {
-                waveTable8[i] = antialiazingfilters[j].Process(waveTable[i]);
+                complexWaveTable[i] = new Complex(waveTable[i], 0);
+
+            }
+
+            FFT.PerformFFT(complexWaveTable);
+
+            float div = (float)wavetableSize / Mathf.Pow(2, (float)j);
+            for (int i = 0; i < wavetableSize; i++)
+            {
+                if (i > div) complexWaveTable[i] = new Complex(0, 0);
+            }
+
+            FFT.PerformIFFT(complexWaveTable);
+
+            for (int i = 0; i < wavetableSize; i++)
+            {
+                antializedWaveTable[j,i] = (float)complexWaveTable[i].Real;
             }
         }
-
-        for (int j = 0; j < 4; j++)
-        {
-            antialiazingfilters[j].SetCoeffs(0.25f/16f, 0.7f, 0);
-        }
-
-        for (int i = 0; i < wavetableSize; i++)
-        {
-            for (int j = 0; j < 4; j++)
-            {
-                waveTable16[i] = antialiazingfilters[j].Process(waveTable[i]);
-            }
-        }
-
-
     }
 
     public void Reset()
     {
-        phase = startPhase;
-        startPhase = Random.Range(0, wavetableSize);
+        if (restartPhase) return;
+
+        startPhase = UnityEngine.Random.Range(0, wavetableSize * randomPhase);
+
+        for (int i=0; i<numVoices; i++)
+        {
+            phase[i] = (startPhase + UnityEngine.Random.Range(0, wavetableSize * randomPhase))% wavetableSize;
+        }
+        
+    }
+
+    public void AddPhase(float p)
+    {
+        for(int i=0; i<numVoices; i++)
+        {
+            phase[i] += p;
+        }
     }
 
     public void SetFrequency(float f)
     {
         frequency = f;
-        increment = wavetableSize * frequency / sampleRate / oversampling;
+        for(int i=0; i < numVoices; i++)
+        {
+            float midiNote = FreqToMidi(f);
+            float detunedFreq = MidiToFreq(midiNote+ Mathf.Lerp(-detune, detune, (float)i / (numVoices - 1)));
+
+            increment[i] = wavetableSize * detunedFreq / sampleRate / oversampling;
+
+            Debug.Log(detunedFreq + " "+f);
+        }
+
+        if(numVoices == 1) increment[0] = wavetableSize * (frequency) / sampleRate / oversampling;
+
+        // set antialiazin wavetable based on frequency
+        if (frequency > 2500) wavetableID = 7;
+        else if (frequency > 1250) wavetableID = 6;
+        else if (frequency > 680) wavetableID = 5;
+        else if (frequency > 340) wavetableID = 4;
+        else if (frequency > 171) wavetableID = 3;
+        else if (frequency > 85) wavetableID = 2;
+        else wavetableID = 1;
+    }
+
+    private float MidiToFreq(float m)
+    {
+        return Mathf.Pow(2f, m/1200f) * 440f;
+    }
+
+    private float FreqToMidi(float f)
+    {
+        return Mathf.Log(f/440,2)*1200f;
     }
 
 
@@ -144,12 +191,20 @@ public class WavetableOscillator
     public float RenderSample()
     {
         float output = 0;
+
         for (int i=0; i< oversampling; i++)
         {
-            output += waveTable8[Mathf.FloorToInt(phase)];
-            phase += increment;
-            if (phase >= wavetableSize) phase -= wavetableSize;
+            for(int j=0; j<numVoices; j++)
+            {
+                phase[j] += increment[j];
+                if (Mathf.FloorToInt(phase[j]) < 0) phase[j] += wavetableSize;
+                if (phase[j] >= wavetableSize) phase[j] -= wavetableSize;
+                output += antializedWaveTable[wavetableID,Mathf.FloorToInt(phase[j])];
+                
+                
+            }
         }
+
         output /= oversampling;
         output *= gain;
 
