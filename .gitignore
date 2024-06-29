@@ -5,13 +5,13 @@
 # This .gitignore file should be placed at the root of your Unity project directory
 #
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore
-/mood-based-chord-generation/Library/
-/[Tt]emp/
-/[Oo]bj/
-/[Bb]uild/
-/[Bb]uilds/
-/[Ll]ogs/
-/[Uu]ser[Ss]ettings/
+/Mood Based Chord Progressions/Library/
+/Mood Based Chord Progressions/Temp/
+/Mood Based Chord Progressions/Obj/
+/Mood Based Chord Progressions/Build/
+/Mood Based Chord Progressions/Builds/
+/Mood Based Chord Progressions/Logs/
+/Mood Based Chord Progressions/UserSettings/
 
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
