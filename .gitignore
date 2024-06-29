@@ -5,7 +5,7 @@
 # This .gitignore file should be placed at the root of your Unity project directory
 #
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore
-/[Ll]ibrary/
+/mood-based-chord-generation/Library/
 /[Tt]emp/
 /[Oo]bj/
 /[Bb]uild/
@@ -75,3 +75,9 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
 # End of https://www.toptal.com/developers/gitignore/api/unity
+
+Mood Based Chord Progressions/Library/
+
+Mood Based Chord Progressions/Logs/
+
+Mood Based Chord Progressions/UserSettings/
