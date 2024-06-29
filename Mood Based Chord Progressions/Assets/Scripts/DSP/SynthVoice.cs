@@ -36,10 +36,10 @@ public class SynthVoice
 
     public void StartNote(int midiNote, float vel)
     {
-        oscillator1.SetFrequency(midiToFreq(midiNote-36));
+        oscillator1.SetFrequency(MathUtils.NoteToFreq(midiNote-36));
         oscillator1.Reset();
 
-        oscillator2.SetFrequency(midiToFreq(midiNote));
+        oscillator2.SetFrequency(MathUtils.NoteToFreq(midiNote));
         oscillator2.Reset();
 
         adsr.Start();
@@ -48,7 +48,7 @@ public class SynthVoice
         velocity = vel;
         noteID = midiNote;
 
-        Debug.Log("Play Note "+midiNote +" at frequency "+ midiToFreq(midiNote));
+        Debug.Log("Play Note "+midiNote +" at frequency "+ MathUtils.NoteToFreq(midiNote));
     }
 
     public void StopNote(int midiNote, float vel)
@@ -61,16 +61,6 @@ public class SynthVoice
     public bool CanPlay()
     {
         return canPlay;
-    }
-
-    private float midiToFreq(int id)
-    {
-        return Mathf.Pow(2, (float)id / 12) * 440f;
-    }
-
-    private float midiToFreq(float id)
-    {
-        return Mathf.Pow(2, id / 12f);
     }
 
 
@@ -92,7 +82,7 @@ public class SynthVoice
             
 
 
-            lowpass.SetCoeffs(Mathf.Max(10, Mathf.Min(midiToFreq(adsrLowValue*172f),22000)),1,0);
+            lowpass.SetCoeffs(Mathf.Max(10, Mathf.Min(MathUtils.NoteToFreq(adsrLowValue*172f),22000)),1,0);
             output = lowpass.Process(output);
             for (int channel=0; channel<numChannels; channel++)
             {

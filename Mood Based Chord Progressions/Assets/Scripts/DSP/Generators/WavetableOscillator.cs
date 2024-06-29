@@ -156,8 +156,8 @@ public class WavetableOscillator
         frequency = f;
         for(int i=0; i < numVoices; i++)
         {
-            float midiNote = FreqToMidi(f);
-            float detunedFreq = MidiToFreq(midiNote+ Mathf.Lerp(-detune, detune, (float)i / (numVoices - 1)));
+            float midiNote = MathUtils.FreqToCent(f);
+            float detunedFreq = MathUtils.CentToFreq(midiNote+ Mathf.Lerp(-detune, detune, (float)i / (numVoices - 1)));
 
             increment[i] = wavetableSize * detunedFreq / sampleRate / oversampling;
 
@@ -175,17 +175,6 @@ public class WavetableOscillator
         else if (frequency > 85) wavetableID = 2;
         else wavetableID = 1;
     }
-
-    private float MidiToFreq(float m)
-    {
-        return Mathf.Pow(2f, m/1200f) * 440f;
-    }
-
-    private float FreqToMidi(float f)
-    {
-        return Mathf.Log(f/440,2)*1200f;
-    }
-
 
 
     public float RenderSample()
