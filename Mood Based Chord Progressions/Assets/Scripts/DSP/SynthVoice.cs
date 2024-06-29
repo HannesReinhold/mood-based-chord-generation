@@ -32,6 +32,7 @@ public class SynthVoice
 
         adsrLowpass = new ADSR(44800, 0.02f, 0.5f, 1, 0.1f);
         lowpass = new Biquad();
+        lowpass.type = BiquadCalculator.BiquadType.LOWPASS;
     }
 
     public void StartNote(int midiNote, float vel)
