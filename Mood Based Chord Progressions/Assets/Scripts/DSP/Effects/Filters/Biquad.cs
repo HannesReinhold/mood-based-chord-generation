@@ -9,7 +9,7 @@ public class Biquad
 
     private float lastF = 0;
 
-    private float sampleRate;
+    public float sampleRate;
 
     public BiquadCalculator.BiquadType type;
 
