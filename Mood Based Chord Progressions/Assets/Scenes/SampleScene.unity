@@ -417,11 +417,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   synth: {fileID: 578932971}
-  bpm: 480
-  scaleMode: 0
-  noteIndex: 0
+  bpm: 120
   octave: 0
-  key: 24
+  key: 0
+  scaleMode: 0
+  chordNum: 0
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

@@ -9,9 +9,6 @@ public class MidiGeneratorTest : MonoBehaviour
     public float bpm;
     private float timer=0;
 
-    private int[] majorScale = { 0, 2, 4, 5, 7, 9, 11 };
-    private int[] minorScale = { 0, 2, 3, 5, 7, 8, 10 };
-
     private int[,] scaleModes =
     {
         { 0, 2, 4, 5, 7, 9, 11  },
@@ -23,12 +20,21 @@ public class MidiGeneratorTest : MonoBehaviour
         { 0, 1, 3, 5, 6, 8, 10  }
     };
 
-    public Mode scaleMode = 0;
-    public int noteIndex = 0;
-    public int octave = 24;
-    public int key = 0;
+    private int[,] scales =
+    {
+        { 0, 2, 4, 5, 7, 9, 11  },
+        { 0, 2, 3, 5, 7, 8, 10  },
+        { 0, 2, 4, 5, 7, 8, 11  },
+        { 0, 2, 3, 5, 7, 8, 11  },
+        { 0, 2, 3, 5, 7, 9, 11  },
+        { 0, 3, 5, 6, 7, 10, 0  },
+        { 0, 1, 4, 5, 7, 8, 11  }
+    };
 
-    private int lastKey;
+    [Range(-1,4)] public int octave = 2;
+    public Key key = 0;
+    public Scale scaleMode = 0;
+    public Chord chordNum=0;
 
     private IEnumerator coroutine;
 
@@ -40,35 +46,44 @@ public class MidiGeneratorTest : MonoBehaviour
         if (timer > 1f/bps)
         {
             timer = 0;
-            PlayNote();
+            //PlayNote();
         }
         timer += Time.deltaTime;
     }
 
+    private void OnValidate()
+    {
+        StopNote(0);
+        PlayNote();
+    }
+
     public void PlayNote()
     {
+        int chordID = (int)chordNum;
+        int keyID = (int)key;
 
-        int chosenKey = (scaleModes[(int)scaleMode, noteIndex]) + octave * 12 + key;
-        synth.PlayNextAvailableVoice(chosenKey);
+        synth.PlayNextAvailableVoice((scales[(int)scaleMode, chordID % 7]) + octave * 12 + keyID);
+        synth.PlayNextAvailableVoice((scales[(int)scaleMode, (chordID + 2)%7]) + (octave+ Mathf.FloorToInt((chordID + 2))/7) * 12 + keyID);
+        synth.PlayNextAvailableVoice((scales[(int)scaleMode, (chordID + 4)%7]) + (octave + Mathf.FloorToInt((chordID + 4)) / 7) * 12 + keyID);
 
 
         //Invoke("StopNote",(1f/(bpm/60f))*0.5f);
-        coroutine = DelayStop(chosenKey);
-        StartCoroutine(coroutine);
+        coroutine = DelayStop(0);
+        //StartCoroutine(coroutine);
     }
 
     IEnumerator DelayStop(int note)
     {
         // suspend execution for 5 seconds
-        yield return new WaitForSeconds((1f / (bpm / 60f)) * 0.4f);
+        yield return new WaitForSeconds((1f / (bpm / 60f)) * 0.8f);
         StopNote(note);
     }
 
     public void StopNote(int note)
     {
         synth.StopAllVoices();
-        noteIndex++;
-        noteIndex %= 7;
+        //noteIndex++;
+        //noteIndex %= 7;
     }
 
     [System.Serializable]
@@ -81,5 +96,46 @@ public class MidiGeneratorTest : MonoBehaviour
         Mixolydian,
         Aeolian,
         Locrian
+    }
+
+    [System.Serializable]
+    public enum Scale
+    {
+        Major,
+        Minor,
+        Harmonic_Major,
+        Harmonic_Minor,
+        Melodic_Minor,
+        Blues,
+        Double_Harmonic_Major
+    }
+
+    [System.Serializable]
+    public enum Key
+    {
+        C = 0,
+        Cs,
+        D,
+        Ds,
+        E,
+        F,
+        Fs,
+        G,
+        Gs,
+        A,
+        As,
+        B
+    }
+
+    [System.Serializable]
+    public enum Chord
+    {
+        I=0,
+        II,
+        III,
+        IV,
+        V,
+        VI,
+        VII
     }
 }
