@@ -270,6 +270,7 @@ GameObject:
   - component: {fileID: 578932972}
   - component: {fileID: 578932973}
   - component: {fileID: 578932971}
+  - component: {fileID: 578932974}
   m_Layer: 0
   m_Name: Synth
   m_TagString: Untagged
@@ -403,6 +404,24 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &578932974
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 578932970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23d23381c8e4b2b4c8559abfb8ba2802, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  synth: {fileID: 578932971}
+  bpm: 480
+  scaleMode: 0
+  noteIndex: 0
+  octave: 0
+  key: 24
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

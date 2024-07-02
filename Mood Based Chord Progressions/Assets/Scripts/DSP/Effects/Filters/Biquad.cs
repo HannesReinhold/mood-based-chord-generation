@@ -9,7 +9,7 @@ public class Biquad
 
     private float lastF = 0;
 
-    private float sampleRate;
+    private float sampleRate = 48000;
 
     public BiquadCalculator.BiquadType type;
 
@@ -17,7 +17,7 @@ public class Biquad
     {
         if(Mathf.Abs(Fc-lastF) < 3f)
         {
-            return;
+            //return;
         }
 
         lastF = Fc;

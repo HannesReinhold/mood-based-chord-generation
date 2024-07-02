@@ -29,6 +29,7 @@ public class Synthesizer : MonoBehaviour
 
     void Update()
     {
+        /*
         if (Input.GetKeyDown("a")) PlayNextAvailableVoice(0);
         if (Input.GetKeyUp("a")) StopVoice(0);
         if (Input.GetKeyDown("s")) PlayNextAvailableVoice(2);
@@ -47,7 +48,7 @@ public class Synthesizer : MonoBehaviour
         if (Input.GetKeyUp("k")) StopVoice(12);
         if (Input.GetKeyDown("l")) PlayNextAvailableVoice(14);
         if (Input.GetKeyUp("l")) StopVoice(14);
-
+        */
 
         lineRenderer.positionCount = dataCopy.Length/2;
         for (int i = 0; i < dataCopy.Length; i += 2)
@@ -81,6 +82,20 @@ public class Synthesizer : MonoBehaviour
                 return;
             }
         
+        }
+    }
+
+    public void StopAllVoices()
+    {
+        for (int i = 0; i < voices.Length; i++)
+        {
+            if (voices[i].CanPlay())
+            {
+                voices[i].StopNote(i, 1);
+                numActiveVoices--;
+                //return;
+            }
+
         }
     }
 
