@@ -53,7 +53,7 @@ public class Synthesizer : MonoBehaviour
         lineRenderer.positionCount = dataCopy.Length/2;
         for (int i = 0; i < dataCopy.Length; i += 2)
         {
-            lineRenderer.SetPosition(i/2, new Vector3(Mathf.Lerp(0, 1, (float)i / dataCopy.Length), dataCopy[i], 0));
+            lineRenderer.SetPosition(i/2, new Vector3(Mathf.Lerp(-1, 1, (float)i / dataCopy.Length), dataCopy[i]*0.25f, 0));
         }
     }
 
