@@ -134,11 +134,13 @@ public class WavetableOscillator
     {
         if (restartPhase) return;
 
-        startPhase = UnityEngine.Random.Range(0, wavetableSize * randomPhase);
+        System.Random rand = new System.Random();
+
+        startPhase = (float)rand.NextDouble() * wavetableSize * randomPhase;
 
         for (int i=0; i<numVoices; i++)
         {
-            phase[i] = (startPhase + UnityEngine.Random.Range(0, wavetableSize * randomPhase))% wavetableSize;
+            phase[i] = (startPhase + (float)rand.NextDouble() * wavetableSize * randomPhase)% wavetableSize;
         }
         
     }

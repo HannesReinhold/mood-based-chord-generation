@@ -271,6 +271,7 @@ GameObject:
   - component: {fileID: 578932973}
   - component: {fileID: 578932971}
   - component: {fileID: 578932974}
+  - component: {fileID: 578932975}
   m_Layer: 0
   m_Name: Synth
   m_TagString: Untagged
@@ -292,6 +293,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   numChannels: 2
   maxVoices: 32
+  masterGain: 1
+  drive: 1
+  dcOffset: 0
+  cutoffFrequency: 22000
+  Q: 1
   lineRenderer: {fileID: 174229487}
 --- !u!4 &578932972
 Transform:
@@ -411,17 +417,33 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 578932970}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 23d23381c8e4b2b4c8559abfb8ba2802, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   synth: {fileID: 578932971}
   bpm: 120
-  octave: 0
-  key: 0
+  octave: 5
+  key: 2
   scaleMode: 0
   chordNum: 0
+--- !u!114 &578932975
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 578932970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2bef6c30158a85141a603ad363fb4469, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  synthesizerRef: {fileID: 578932971}
+  bpm: 100
+  rate: 0.25
+  canPlay: 0
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

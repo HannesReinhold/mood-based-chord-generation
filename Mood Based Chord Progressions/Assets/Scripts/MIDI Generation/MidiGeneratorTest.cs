@@ -28,10 +28,11 @@ public class MidiGeneratorTest : MonoBehaviour
         { 0, 2, 3, 5, 7, 8, 11  },
         { 0, 2, 3, 5, 7, 9, 11  },
         { 0, 3, 5, 6, 7, 10, 0  },
-        { 0, 1, 4, 5, 7, 8, 11  }
+        { 0, 1, 4, 5, 7, 8, 11  },
+        { 0, 1, 3, 5, 7, 8, 10  }
     };
 
-    [Range(-1,4)] public int octave = 2;
+    [Range(0,6)] public int octave = 2;
     public Key key = 0;
     public Scale scaleMode = 0;
     public Chord chordNum=0;
@@ -63,7 +64,7 @@ public class MidiGeneratorTest : MonoBehaviour
         int keyID = (int)key;
 
         synth.PlayNextAvailableVoice((scales[(int)scaleMode, chordID % 7]) + octave * 12 + keyID);
-        synth.PlayNextAvailableVoice((scales[(int)scaleMode, (chordID + 2)%7]) + (octave+ Mathf.FloorToInt((chordID + 2))/7) * 12 + keyID);
+        //synth.PlayNextAvailableVoice((scales[(int)scaleMode, (chordID + 2)%7]) + (octave+ Mathf.FloorToInt((chordID + 2))/7) * 12 + keyID);
         synth.PlayNextAvailableVoice((scales[(int)scaleMode, (chordID + 4)%7]) + (octave + Mathf.FloorToInt((chordID + 4)) / 7) * 12 + keyID);
 
 
@@ -107,7 +108,8 @@ public class MidiGeneratorTest : MonoBehaviour
         Harmonic_Minor,
         Melodic_Minor,
         Blues,
-        Double_Harmonic_Major
+        Double_Harmonic_Major,
+        Phrygian
     }
 
     [System.Serializable]

@@ -8,6 +8,14 @@ public class Synthesizer : MonoBehaviour
     public int numChannels = 2;
     public int maxVoices = 16;
 
+    [Range(0,1)] public float masterGain = 1;
+    [Header("Distortion")]
+    [Range(0, 100)] public float drive = 1;
+    [Range(-1, 1)] public float dcOffset;
+    [Header("Filter")]
+    [Range(20, 22000)] public float cutoffFrequency = 22000;
+    [Range(0, 10)] public float Q = 1;
+
 
     private int numActiveVoices = 0;
 
@@ -17,6 +25,10 @@ public class Synthesizer : MonoBehaviour
 
     public LineRenderer lineRenderer;
     private float[] dataCopy;
+
+
+
+    private HardClip dist = new HardClip();
 
 
 
@@ -117,12 +129,25 @@ public class Synthesizer : MonoBehaviour
 
     public void ProcessBlock(float[] data)
     {
+        dist.SetDrive(drive);
+        dist.SetDcOffset(dcOffset);
+
+        for(int i=0; i<voices.Length; i++)
+        {
+            voices[i].lowpass.SetCoeffs(cutoffFrequency, Q, 0);
+        }
+
         // Get samples from generators per voice
         for(int i=0; i < voices.Length; i++)
         {
             if (!voices[i].CanPlay()) continue;
 
             voices[i].RenderBlock(data, numChannels, numActiveVoices);
+        }
+
+        for(int i=0; i<data.Length; i++)
+        {
+            data[i] = dist.ProcesSample(data[i]) * masterGain;
         }
 
         dataCopy = data;
