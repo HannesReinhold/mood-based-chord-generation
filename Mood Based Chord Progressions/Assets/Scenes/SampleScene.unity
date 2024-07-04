@@ -270,6 +270,7 @@ GameObject:
   - component: {fileID: 578932972}
   - component: {fileID: 578932973}
   - component: {fileID: 578932971}
+  - component: {fileID: 578932975}
   - component: {fileID: 578932974}
   m_Layer: 0
   m_Name: Synth
@@ -422,6 +423,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   synth: {fileID: 578932971}
+  arp: {fileID: 578932975}
   playNote: 0
   octave: 3
   key: 2
@@ -433,6 +435,22 @@ MonoBehaviour:
   has7th: 0
   has9th: 0
   has11th: 0
+--- !u!114 &578932975
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 578932970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa9cf9f0f6f769d47b36ee5a5f8e0455, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  synthesizerRef: {fileID: 578932971}
+  bpm: 140
+  rate: 0.25
+  canPlay: 0
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

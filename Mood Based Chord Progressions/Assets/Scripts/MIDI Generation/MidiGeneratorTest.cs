@@ -5,6 +5,7 @@ using UnityEngine;
 public class MidiGeneratorTest : MonoBehaviour
 {
     public Synthesizer synth;
+    public Arpeggiator arp;
 
     public bool playNote = false;
     [Range(0,6)] public int octave = 2;
@@ -26,7 +27,7 @@ public class MidiGeneratorTest : MonoBehaviour
 
     private void Awake()
     {
-        generator = new ChordGenerator(synth);
+        generator = new ChordGenerator(arp);
     }
 
     private void OnValidate()
@@ -47,6 +48,8 @@ public class MidiGeneratorTest : MonoBehaviour
 
         generator.Update(new MidiSignal(MidiEvent.NoteOff, 0));
         generator.Update(new MidiSignal(playNote ? MidiEvent.NoteOn : MidiEvent.NoteOff, 0));
+
+        
     }
 
 

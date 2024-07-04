@@ -3,24 +3,21 @@ using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
-public class Arpeggiator : MonoBehaviour
+public class Arpeggiator : MonoBehaviour, MidiDevice
 {
     public Synthesizer synthesizerRef;
+
 
     public float bpm;
     public float rate;
 
     private float timer = 0;
 
-    private List<int> notes;
+    private List<int> notes = new List<int>();
+
+    int noteIndex=0;
 
     public bool canPlay = false;
-
-    private bool lastCanPlay = false;
-
-    private IEnumerator updateLoop;
-
-    private Thread thread;
 
     private void Start()
     {
@@ -31,56 +28,43 @@ public class Arpeggiator : MonoBehaviour
        canPlay = false;
     }
 
-    private void OnValidate()
-    {
-        if (canPlay != lastCanPlay)
-        {
-            lastCanPlay = canPlay;
-            updateLoop = UpdateArp();
-            //StartCoroutine(updateLoop);
-            //Play();
-            thread = new Thread(Run);
-            thread.Start();
-        }
-        
-    }
-    int i = 0;
-    void Run()
-    {
-        while (canPlay)
-        {
-            synthesizerRef.StopAllVoices();
-            synthesizerRef.PlayNextAvailableVoice(48);
 
-            Debug.Log(i);
-            Thread.Sleep((int)(60f / bpm * rate*1000));
-            i++;
+    private void OnAudioFilterRead(float[] data, int channels)
+    {
+        if (!canPlay) return;
+
+        for(int i=0; i<data.Length; i+=2)
+        {
+            timer += 1f / 48000f;
+            if(timer> 60f / bpm * rate)
+            {
+                timer = 0;
+                synthesizerRef.StopAllVoices();
+
+
+                noteIndex++;
+                if (noteIndex >= notes.Count)
+                {
+                    noteIndex = 0;
+                }
+
+                synthesizerRef.PlayNextAvailableVoice(notes[noteIndex]);
+            }
         }
     }
 
-    private void Play()
+    public void StartNote(int noteID)
     {
-        synthesizerRef.StopAllVoices();
-        synthesizerRef.PlayNextAvailableVoice(48);
-
-        if (canPlay) Invoke("Play", 60f / bpm * rate);
+        notes.Add(noteID);
     }
 
-    private IEnumerator UpdateArp()
+    public void StopNote(int noteID)
     {
-        synthesizerRef.StopAllVoices();
-        synthesizerRef.PlayNextAvailableVoice(48);
-
-        while (canPlay)
-        {
-            yield return new WaitForSecondsRealtime(60/bpm*rate);
-
-            synthesizerRef.StopAllVoices();
-            synthesizerRef.PlayNextAvailableVoice(48);
-        }
-
-        
-
+        notes.Remove(noteID);
     }
 
+    public void StopAllNotes()
+    {
+        notes.Clear();
+    }
 }
