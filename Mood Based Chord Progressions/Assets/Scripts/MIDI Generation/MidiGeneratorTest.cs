@@ -20,14 +20,13 @@ public class MidiGeneratorTest : MonoBehaviour
     public bool has9th = false;
     public bool has11th = false;
 
-    private IEnumerator coroutine;
-
-
     private ChordGenerator generator;
 
     private void Awake()
     {
         generator = new ChordGenerator(arp);
+       
+        arp.device = synth;
     }
 
     private void OnValidate()

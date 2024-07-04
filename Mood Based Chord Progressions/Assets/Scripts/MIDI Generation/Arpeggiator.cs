@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Arpeggiator : MonoBehaviour, MidiDevice
 {
-    public Synthesizer synthesizerRef;
+    public MidiDevice device;
 
 
     public float bpm;
@@ -31,7 +31,7 @@ public class Arpeggiator : MonoBehaviour, MidiDevice
 
     private void OnAudioFilterRead(float[] data, int channels)
     {
-        if (!canPlay) return;
+        //if (!canPlay) return;
 
         for(int i=0; i<data.Length; i+=2)
         {
@@ -39,7 +39,7 @@ public class Arpeggiator : MonoBehaviour, MidiDevice
             if(timer> 60f / bpm * rate)
             {
                 timer = 0;
-                synthesizerRef.StopAllVoices();
+                device.StopAllNotes();
 
 
                 noteIndex++;
@@ -48,7 +48,7 @@ public class Arpeggiator : MonoBehaviour, MidiDevice
                     noteIndex = 0;
                 }
 
-                synthesizerRef.PlayNextAvailableVoice(notes[noteIndex]);
+                device.StartNote(notes[noteIndex]);
             }
         }
     }

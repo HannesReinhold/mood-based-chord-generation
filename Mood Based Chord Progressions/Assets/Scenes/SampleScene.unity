@@ -425,13 +425,13 @@ MonoBehaviour:
   synth: {fileID: 578932971}
   arp: {fileID: 578932975}
   playNote: 0
-  octave: 3
-  key: 2
+  octave: 4
+  key: 0
   scaleMode: 0
   chordNum: 0
-  has1st: 0
-  has3rd: 0
-  has5th: 0
+  has1st: 1
+  has3rd: 1
+  has5th: 1
   has7th: 0
   has9th: 0
   has11th: 0
@@ -447,9 +447,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa9cf9f0f6f769d47b36ee5a5f8e0455, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  synthesizerRef: {fileID: 578932971}
   bpm: 140
-  rate: 0.25
+  rate: 1
   canPlay: 0
 --- !u!1 &705507993
 GameObject:

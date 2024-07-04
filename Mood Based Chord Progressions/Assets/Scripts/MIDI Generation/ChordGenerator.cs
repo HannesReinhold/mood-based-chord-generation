@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ChordGenerator
+public class ChordGenerator : MidiDevice
 {
     public int octave = 0;
     public Key key = 0;
@@ -30,6 +30,18 @@ public class ChordGenerator
         { 0, 1, 3, 5, 7, 8, 10  }
     };
 
+    private int[,] scales2 =
+    {
+        { 0,0, 2,2, 4, 5,5, 7,7, 9,9, 11  },
+        { 0,0, 2, 3,3, 5,5, 7, 8,8, 10,10  },
+        { 0,0, 2,2, 4, 5,5, 7, 8,8,8, 11  },
+        { 0,0, 2, 3,3, 5,5, 7, 8,8,8, 11  },
+        { 0,0, 2, 3,3, 5,5, 7,7, 9,9, 11  },
+        { 0,0,0, 3,3, 5, 6, 7,7,7, 10, 10  },
+        { 0, 1,1,1, 4, 5,5, 7, 8,8,8, 11  },
+        { 0, 1, 1,3,3, 5,5, 7, 8,8, 10,10  }
+    };
+
 
     public ChordGenerator(MidiDevice device)
     {
@@ -41,17 +53,17 @@ public class ChordGenerator
         switch (midi.midiEvent)
         {
             case MidiEvent.NoteOff:
-                StopChord(BuildChord(key, scaleMode, chordNum, has7th, has9th, has11th));
+                StopChord(BuildChord(key, scaleMode, chordNum, octave, has1st, has3rd, has5th, has7th, has9th, has11th));
                 break;
             case MidiEvent.NoteOn:
-                StartChord(BuildChord(key, scaleMode, chordNum, has7th, has9th, has11th));
+                StartChord(BuildChord(key, scaleMode, chordNum, octave, has1st, has3rd, has5th, has7th, has9th, has11th));
                 break;
             default:
                 break;
         }
     }
 
-    public List<int> BuildChord(Key key, Scale scale, Chord chordNum, bool has7th, bool has9th, bool has11th)
+    public List<int> BuildChord(Key key, Scale scale, Chord chordNum, int octave, bool has1st, bool has3rd, bool has5th, bool has7th, bool has9th, bool has11th)
     {
         List<int> noteList = new List<int>();
 
@@ -67,6 +79,14 @@ public class ChordGenerator
         if (has11th) noteList.Add((scales[(int)scaleMode, (chordID + 10) % 7]) + (octave + Mathf.FloorToInt((chordID + 10)) / 7) * 12 + keyID);
 
         return noteList;
+    }
+
+
+    public int QuantizeNote(int noteID)
+    {
+        int oct = Mathf.FloorToInt(noteID / 12);
+        int note = scales[(int)scaleMode, (noteID % 12)];
+        return note+12*oct;
     }
 
     private void StartChord(List<int> notes)
@@ -87,6 +107,22 @@ public class ChordGenerator
         }
     }
 
+    public void StartNote(int noteID)
+    {
+        //if(device.GetType() == )
+
+        StartChord(BuildChord(key, scaleMode, (Chord)(noteID%7), Mathf.FloorToInt((noteID) / 7), has1st, has3rd, has5th, has7th, has9th, has11th));
+    }
+
+    public void StopNote(int noteID)
+    {
+        StopChord(BuildChord(key, scaleMode, (Chord)(noteID%7), Mathf.FloorToInt((noteID) / 7f), has1st, has3rd, has5th, has7th, has9th, has11th));
+    }
+
+    public void StopAllNotes()
+    {
+        device.StopAllNotes();
+    }
 }
 
 
