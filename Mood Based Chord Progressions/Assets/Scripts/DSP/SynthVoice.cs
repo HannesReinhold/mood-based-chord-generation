@@ -27,7 +27,7 @@ public class SynthVoice
         oscillator1.restartPhase = false;
         oscillator1.detune = 5f;
 
-        adsr = new ADSR(48000, 0.01f, 0.05f, 1, 0.01f);
+        adsr = new ADSR(48000, 0.02f, 0.05f, 1, 0.02f);
         canPlay = false;
 
         adsrLowpass = new ADSR(44800, 0.02f, 0.05f, 0.3f, 0.01f);

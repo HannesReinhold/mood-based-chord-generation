@@ -162,8 +162,6 @@ public class WavetableOscillator
             float detunedFreq = MathUtils.CentToFreq(midiNote+ Mathf.Lerp(-detune, detune, (float)i / (numVoices - 1)));
 
             increment[i] = wavetableSize * detunedFreq / sampleRate / oversampling;
-
-            Debug.Log(detunedFreq + " "+f);
         }
 
         if(numVoices == 1) increment[0] = wavetableSize * (frequency) / sampleRate / oversampling;

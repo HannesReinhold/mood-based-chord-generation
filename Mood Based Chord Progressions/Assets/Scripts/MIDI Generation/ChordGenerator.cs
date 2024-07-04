@@ -111,12 +111,12 @@ public class ChordGenerator : MidiDevice
     {
         //if(device.GetType() == )
 
-        StartChord(BuildChord(key, scaleMode, (Chord)(noteID%7), Mathf.FloorToInt((noteID) / 7), has1st, has3rd, has5th, has7th, has9th, has11th));
+        StartChord(BuildChord(key, scaleMode, (Chord)(noteID%7), Mathf.FloorToInt((noteID) / 7)+octave, has1st, has3rd, has5th, has7th, has9th, has11th));
     }
 
     public void StopNote(int noteID)
     {
-        StopChord(BuildChord(key, scaleMode, (Chord)(noteID%7), Mathf.FloorToInt((noteID) / 7f), has1st, has3rd, has5th, has7th, has9th, has11th));
+        StopChord(BuildChord(key, scaleMode, (Chord)(noteID%7), Mathf.FloorToInt((noteID) / 7f)+octave, has1st, has3rd, has5th, has7th, has9th, has11th));
     }
 
     public void StopAllNotes()

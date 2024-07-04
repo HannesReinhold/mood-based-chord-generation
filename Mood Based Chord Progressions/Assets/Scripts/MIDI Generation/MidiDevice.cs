@@ -4,8 +4,9 @@ using UnityEngine;
 
 public interface MidiDevice
 {
-    public void StartNote(int noteID);
-    public void StopNote(int noteID);
 
-    public void StopAllNotes();
+    public abstract void StartNote(int noteID);
+    public abstract void StopNote(int noteID);
+
+    public abstract void StopAllNotes();
 }
