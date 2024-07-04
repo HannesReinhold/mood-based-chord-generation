@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Synthesizer : MonoBehaviour
+public class Synthesizer : MonoBehaviour, MidiDevice
 {
 
     public int numChannels = 2;
@@ -74,6 +74,24 @@ public class Synthesizer : MonoBehaviour
         ProcessBlock(data);
 
     }
+
+
+    public void StartNote(int noteID)
+    {
+        PlayNextAvailableVoice(noteID);
+    }
+
+    public void StopNote(int noteID)
+    {
+        StopVoice(noteID);
+    }
+
+    public void StopAllNotes()
+    {
+        StopAllVoices();
+    }
+
+
 
     public void PlayNextAvailableVoice(int noteID)
     {
