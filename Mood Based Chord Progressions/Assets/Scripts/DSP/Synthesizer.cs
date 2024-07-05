@@ -16,11 +16,18 @@ public class Synthesizer : MidiDevice
 
     public int octave = 0;
 
+    [Range(0, 1)] public float phaserFreq = 0;
+    [Range(0, 0.9999f)] public float phaserFeedback = 0;
+    [Range(1, 32)] public int phaserStages = 4;
+    public bool phaserPositiveFeedback = true;
+
+
     private int numActiveVoices = 0;
     public SynthVoice[] voices;
 
     // Effects
     private HardClip dist = new HardClip();
+    private Phaser phaser = new Phaser();
 
 
     public override void StartNote(int noteID)
@@ -88,11 +95,16 @@ public class Synthesizer : MidiDevice
 
         // Setup Effects
     }
-
+    float z0 = 0;
     public void ProcessBlock(float[] data, int numChannels)
     {
         dist.SetDrive(drive);
         dist.SetDcOffset(dcOffset);
+
+        phaser.fc = phaserFreq;
+        phaser.feedback = phaserFeedback;
+        phaser.numStages = phaserStages;
+        phaser.positiveFeedback = phaserPositiveFeedback;
 
         for(int i=0; i<voices.Length; i++)
         {
@@ -112,6 +124,8 @@ public class Synthesizer : MidiDevice
         for (int i=0; i<data.Length; i++)
         {
             data[i] = dist.ProcesSample(data[i]) * masterGain;
+
+            data[i] = phaser.Process(data[i]);
         }
 
         

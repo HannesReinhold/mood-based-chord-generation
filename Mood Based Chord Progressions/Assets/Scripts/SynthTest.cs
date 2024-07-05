@@ -26,6 +26,11 @@ public class SynthTest : MonoBehaviour
     public List<int> chords;
     int chordIndex = 0;
 
+    [Range(0,1)]public float phaserFreq = 0;
+    [Range(0, 0.9999f)] public float phaserFeedback = 0;
+    [Range(1, 32)] public int phaserStages = 4;
+    public bool phaserPositiveFeedback = true;
+
 
     // Start is called before the first frame update
     void Start()
@@ -46,7 +51,7 @@ public class SynthTest : MonoBehaviour
 
         synth.PrepareToPlay();
         synth2.PrepareToPlay();
-        
+
         for(int i=0; i<synth2.maxVoices; i++)
         {
             synth2.voices[i].oscillator1.detune = 30;
@@ -69,6 +74,11 @@ public class SynthTest : MonoBehaviour
         {
             oscilloscope.SetPosition(i / 2, new Vector3(Mathf.Lerp(-1, 1, (float)i / dataCopy.Length), dataCopy[i] * 0.25f, 0));
         }
+
+        synth.phaserFreq = phaserFreq;
+        synth.phaserFeedback = phaserFeedback;
+        synth.phaserStages = phaserStages;
+        synth.phaserPositiveFeedback = phaserPositiveFeedback;
     }
 
     private void OnAudioFilterRead(float[] data, int channels)
@@ -95,7 +105,7 @@ public class SynthTest : MonoBehaviour
 
         
         synth.ProcessBlock(data, channels);
-        synth2.ProcessBlock(data,channels);
+        //synth2.ProcessBlock(data,channels);
 
         dataCopy = data;
     }

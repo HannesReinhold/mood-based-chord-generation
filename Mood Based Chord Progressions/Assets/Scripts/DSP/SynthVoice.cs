@@ -22,7 +22,7 @@ public class SynthVoice
         oscillator1 = new WavetableOscillator(48000);
 
         oscillator1.SetSaw();
-        oscillator1.numVoices = 8;
+        oscillator1.numVoices = 1;
         oscillator1.randomPhase = 1;
         oscillator1.restartPhase = false;
         oscillator1.detune = 5f;
@@ -30,7 +30,7 @@ public class SynthVoice
         adsr = new ADSR(48000, 1f, 0.05f, 1, 0.3f);
         canPlay = false;
 
-        adsrLowpass = new ADSR(44800, 1f, 0.2f, 0.3f, 0.3f);
+        adsrLowpass = new ADSR(44800, 1f, 0.2f, 1f, 0.3f);
         lowpass = new Biquad();
         lowpass.type = BiquadType.Lowpass;
         lowpass.CalcCoeffs(6000,0.7f,0,BiquadType.Lowpass);
