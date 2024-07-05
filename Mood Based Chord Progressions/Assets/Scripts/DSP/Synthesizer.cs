@@ -14,8 +14,10 @@ public class Synthesizer : MidiDevice
     public float cutoffFrequency = 22000;
     public float Q = 1;
 
+    public int octave = 0;
+
     private int numActiveVoices = 0;
-    private SynthVoice[] voices;
+    public SynthVoice[] voices;
 
     // Effects
     private HardClip dist = new HardClip();
@@ -41,7 +43,7 @@ public class Synthesizer : MidiDevice
     {
         for(int i=0; i < voices.Length; i++)
         {
-            if (!voices[i].CanPlay()) { voices[i].StartNote(noteID, 1); numActiveVoices++;  return; }
+            if (!voices[i].CanPlay()) { voices[i].StartNote(noteID+octave*12, 1); numActiveVoices++;  return; }
         }
     }
 
@@ -51,7 +53,7 @@ public class Synthesizer : MidiDevice
         {
             if (voices[i].noteID == noteID && voices[i].CanPlay())
             {
-                voices[i].StopNote(noteID, 1);
+                voices[i].StopNote(noteID+octave*12, 1);
                 numActiveVoices--;
                 return;
             }

@@ -184,7 +184,9 @@ LineRenderer:
   m_SortingOrder: 0
   m_Positions:
   - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 0, z: 1}
+  - {x: 0, y: 1, z: 0.01}
+  - {x: 0, y: 0, z: 2}
+  - {x: 0, y: 0, z: 3}
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.1
@@ -193,7 +195,7 @@ LineRenderer:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.011247635
+        value: 0.017900467
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -233,7 +235,7 @@ LineRenderer:
       m_ColorSpace: -1
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 0
+    numCornerVertices: 5
     numCapVertices: 0
     alignment: 0
     textureMode: 0
@@ -586,6 +588,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1db8c459745127b469a88080539a31b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  oscilloscope: {fileID: 174229487}
+  chords: 00000000060000000500000003000000
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

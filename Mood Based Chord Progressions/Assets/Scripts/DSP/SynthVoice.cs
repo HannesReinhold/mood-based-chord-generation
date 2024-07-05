@@ -5,7 +5,7 @@ using UnityEngine;
 public class SynthVoice
 {
 
-    private WavetableOscillator oscillator1;
+    public WavetableOscillator oscillator1;
     private ADSR adsr;
     private ADSR adsrLowpass;
     public Biquad lowpass;
@@ -27,10 +27,10 @@ public class SynthVoice
         oscillator1.restartPhase = false;
         oscillator1.detune = 5f;
 
-        adsr = new ADSR(48000, 0.02f, 0.05f, 1, 0.02f);
+        adsr = new ADSR(48000, 1f, 0.05f, 1, 0.3f);
         canPlay = false;
 
-        adsrLowpass = new ADSR(44800, 0.02f, 0.2f, 0.3f, 0.01f);
+        adsrLowpass = new ADSR(44800, 1f, 0.2f, 0.3f, 0.3f);
         lowpass = new Biquad();
         lowpass.type = BiquadCalculator.BiquadType.LOWPASS;
         lowpass.SetCoeffs(6000,0.7f,0,BiquadCalculator.BiquadType.LOWPASS);

@@ -9,9 +9,9 @@ public class ChordGenerator : MidiDevice
     public Scale scaleMode = 0;
     public Chord chordNum = 0;
 
-    public bool has1st = false;
-    public bool has3rd = false;
-    public bool has5th = false;
+    public bool has1st = true;
+    public bool has3rd = true;
+    public bool has5th = true;
     public bool has7th = false;
     public bool has9th = false;
     public bool has11th = false;
@@ -44,6 +44,10 @@ public class ChordGenerator : MidiDevice
     public ChordGenerator(MidiDevice device)
     {
         this.device = device;
+    }
+
+    public ChordGenerator()
+    {
     }
 
     public void Update(MidiSignal midi)
@@ -108,7 +112,7 @@ public class ChordGenerator : MidiDevice
     public override void StartNote(int noteID)
     {
         //if(device.GetType() == )
-
+        Debug.Log("Play Chord " + noteID);
         StartChord(BuildChord(key, scaleMode, (Chord)(noteID%7), Mathf.FloorToInt((noteID) / 7)+octave, has1st, has3rd, has5th, has7th, has9th, has11th));
     }
 
