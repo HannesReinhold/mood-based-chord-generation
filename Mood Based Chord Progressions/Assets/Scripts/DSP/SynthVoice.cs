@@ -5,11 +5,10 @@ using UnityEngine;
 public class SynthVoice
 {
 
-    private WavetableOscillator oscillator1;
-    private WavetableOscillator oscillator2;
+    public WavetableOscillator oscillator1;
     private ADSR adsr;
     private ADSR adsrLowpass;
-    private Biquad lowpass;
+    public Biquad lowpass;
 
 
     private bool canPlay;
@@ -21,27 +20,27 @@ public class SynthVoice
     public SynthVoice(int numChannels)
     {
         oscillator1 = new WavetableOscillator(48000);
-        oscillator2 = new WavetableOscillator(48000);
 
-        oscillator1.SetSine();
-        oscillator2.SetSine();
+        oscillator1.SetSaw();
+        oscillator1.numVoices = 8;
+        oscillator1.randomPhase = 1;
+        oscillator1.restartPhase = false;
+        oscillator1.detune = 5f;
 
-        oscillator2.gain = 0.5f;
-        adsr = new ADSR(48000, 0.01f, 0.7f, 1, 0.1f);
+        adsr = new ADSR(48000, 1f, 0.05f, 1, 0.3f);
         canPlay = false;
 
-        adsrLowpass = new ADSR(44800, 0.02f, 0.5f, 1, 0.1f);
+        adsrLowpass = new ADSR(44800, 1f, 0.2f, 0.3f, 0.3f);
         lowpass = new Biquad();
         lowpass.type = BiquadCalculator.BiquadType.LOWPASS;
+        lowpass.SetCoeffs(6000,0.7f,0,BiquadCalculator.BiquadType.LOWPASS);
     }
 
     public void StartNote(int midiNote, float vel)
     {
-        oscillator1.SetFrequency(MathUtils.NoteToFreq(midiNote-36));
+        oscillator1.SetFrequency(MathUtils.NoteToFreq(midiNote));
         oscillator1.Reset();
 
-        oscillator2.SetFrequency(MathUtils.NoteToFreq(midiNote));
-        oscillator2.Reset();
 
         adsr.Start();
         adsrLowpass.Start();
@@ -75,15 +74,9 @@ public class SynthVoice
             float adsrValue = adsr.GetValue();
             float adsrLowValue = adsrLowpass.GetValue();
 
-            float mod = oscillator2.RenderSample() * velocity * adsrValue * 0.1f;
-            oscillator1.AddPhase(mod*1000f);
-
             float output = oscillator1.RenderSample() * velocity * adsrValue * 0.1f;
 
-            
-
-
-            lowpass.SetCoeffs(Mathf.Max(10, Mathf.Min(MathUtils.NoteToFreq(adsrLowValue*172f),22000)),1,0);
+            lowpass.SetCoeffs(adsrLowValue*2200, 0.7f, 0, BiquadCalculator.BiquadType.LOWPASS);
             output = lowpass.Process(output);
             for (int channel=0; channel<numChannels; channel++)
             {

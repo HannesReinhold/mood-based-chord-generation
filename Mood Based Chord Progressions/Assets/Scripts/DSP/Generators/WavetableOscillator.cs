@@ -134,11 +134,13 @@ public class WavetableOscillator
     {
         if (restartPhase) return;
 
-        startPhase = UnityEngine.Random.Range(0, wavetableSize * randomPhase);
+        System.Random rand = new System.Random();
+
+        startPhase = (float)rand.NextDouble() * wavetableSize * randomPhase;
 
         for (int i=0; i<numVoices; i++)
         {
-            phase[i] = (startPhase + UnityEngine.Random.Range(0, wavetableSize * randomPhase))% wavetableSize;
+            phase[i] = (startPhase + (float)rand.NextDouble() * wavetableSize * randomPhase)% wavetableSize;
         }
         
     }
@@ -160,8 +162,6 @@ public class WavetableOscillator
             float detunedFreq = MathUtils.CentToFreq(midiNote+ Mathf.Lerp(-detune, detune, (float)i / (numVoices - 1)));
 
             increment[i] = wavetableSize * detunedFreq / sampleRate / oversampling;
-
-            Debug.Log(detunedFreq + " "+f);
         }
 
         if(numVoices == 1) increment[0] = wavetableSize * (frequency) / sampleRate / oversampling;

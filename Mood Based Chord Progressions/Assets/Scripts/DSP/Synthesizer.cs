@@ -2,71 +2,48 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Synthesizer : MonoBehaviour
+public class Synthesizer : MidiDevice
 {
 
     public int numChannels = 2;
     public int maxVoices = 16;
 
+    public float masterGain = 1;
+    public float drive = 1;
+    public float dcOffset;
+    public float cutoffFrequency = 22000;
+    public float Q = 1;
+
+    public int octave = 0;
 
     private int numActiveVoices = 0;
+    public SynthVoice[] voices;
+
+    // Effects
+    private HardClip dist = new HardClip();
 
 
-    private SynthVoice[] voices;
-
-
-    public LineRenderer lineRenderer;
-    private float[] dataCopy;
-
-
-
-    void Awake()
+    public override void StartNote(int noteID)
     {
-        PrepareToPlay();
-        
-
+        PlayNextAvailableVoice(noteID);
     }
 
-    void Update()
+    public override void StopNote(int noteID)
     {
-        if (Input.GetKeyDown("a")) PlayNextAvailableVoice(0);
-        if (Input.GetKeyUp("a")) StopVoice(0);
-        if (Input.GetKeyDown("s")) PlayNextAvailableVoice(2);
-        if (Input.GetKeyUp("s")) StopVoice(2);
-        if (Input.GetKeyDown("d")) PlayNextAvailableVoice(4);
-        if (Input.GetKeyUp("d")) StopVoice(4);
-        if (Input.GetKeyDown("f")) PlayNextAvailableVoice(5);
-        if (Input.GetKeyUp("f")) StopVoice(5);
-        if (Input.GetKeyDown("g")) PlayNextAvailableVoice(7);
-        if (Input.GetKeyUp("g")) StopVoice(7);
-        if (Input.GetKeyDown("h")) PlayNextAvailableVoice(9);
-        if (Input.GetKeyUp("h")) StopVoice(9);
-        if (Input.GetKeyDown("j")) PlayNextAvailableVoice(11);
-        if (Input.GetKeyUp("j")) StopVoice(11);
-        if (Input.GetKeyDown("k")) PlayNextAvailableVoice(12);
-        if (Input.GetKeyUp("k")) StopVoice(12);
-        if (Input.GetKeyDown("l")) PlayNextAvailableVoice(14);
-        if (Input.GetKeyUp("l")) StopVoice(14);
-
-
-        lineRenderer.positionCount = dataCopy.Length/2;
-        for (int i = 0; i < dataCopy.Length; i += 2)
-        {
-            lineRenderer.SetPosition(i/2, new Vector3(Mathf.Lerp(-1, 1, (float)i / dataCopy.Length), dataCopy[i]*0.25f, 0));
-        }
+        StopVoice(noteID);
     }
 
-    private void OnAudioFilterRead(float[] data, int channels)
+    public override void StopAllNotes()
     {
-        ProcessBlock(data);
-
+        StopAllVoices();
     }
+
 
     public void PlayNextAvailableVoice(int noteID)
     {
         for(int i=0; i < voices.Length; i++)
         {
-            if (!voices[i].CanPlay()) { voices[i].StartNote(noteID, 1); numActiveVoices++;  return; }
+            if (!voices[i].CanPlay()) { voices[i].StartNote(noteID+octave*12, 1); numActiveVoices++;  return; }
         }
     }
 
@@ -76,7 +53,7 @@ public class Synthesizer : MonoBehaviour
         {
             if (voices[i].noteID == noteID && voices[i].CanPlay())
             {
-                voices[i].StopNote(noteID, 1);
+                voices[i].StopNote(noteID+octave*12, 1);
                 numActiveVoices--;
                 return;
             }
@@ -84,7 +61,19 @@ public class Synthesizer : MonoBehaviour
         }
     }
 
+    public void StopAllVoices()
+    {
+        for (int i = 0; i < voices.Length; i++)
+        {
+            if (voices[i].CanPlay())
+            {
+                voices[i].StopNote(i, 1);
+                numActiveVoices--;
+                //return;
+            }
 
+        }
+    }
 
 
     public void PrepareToPlay()
@@ -100,8 +89,16 @@ public class Synthesizer : MonoBehaviour
         // Setup Effects
     }
 
-    public void ProcessBlock(float[] data)
+    public void ProcessBlock(float[] data, int numChannels)
     {
+        dist.SetDrive(drive);
+        dist.SetDcOffset(dcOffset);
+
+        for(int i=0; i<voices.Length; i++)
+        {
+            voices[i].lowpass.SetCoeffs(cutoffFrequency, Q, 0);
+        }
+
         // Get samples from generators per voice
         for(int i=0; i < voices.Length; i++)
         {
@@ -110,10 +107,13 @@ public class Synthesizer : MonoBehaviour
             voices[i].RenderBlock(data, numChannels, numActiveVoices);
         }
 
-        dataCopy = data;
 
         // Process effects
+        for (int i=0; i<data.Length; i++)
+        {
+            data[i] = dist.ProcesSample(data[i]) * masterGain;
+        }
 
-
+        
     }
 }
