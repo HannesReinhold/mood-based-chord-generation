@@ -25,6 +25,8 @@ public class Arpeggiator : MonoBehaviour, MidiDevice
 
     private System.Random random = new System.Random();
 
+    public int[] noteLayout;
+
     private void Start()
     {
     }
@@ -41,12 +43,12 @@ public class Arpeggiator : MonoBehaviour, MidiDevice
         for(int i=0; i<data.Length; i+=2)
         {
             timer += 1f / 48000f;
-            if(timer> 60f / bpm * rate)
+            if (timer > 60f / bpm * rate)
             {
                 timer = 0;
                 device.StopAllNotes();
 
-                if(mode == ArpeggiatorMode.Ascending)
+                if (mode == ArpeggiatorMode.Ascending)
                 {
                     noteIndex++;
                     if (noteIndex >= notes.Count)
@@ -54,28 +56,38 @@ public class Arpeggiator : MonoBehaviour, MidiDevice
                         noteIndex = 0;
                     }
                 }
-                else if(mode == ArpeggiatorMode.Descending)
+                else if (mode == ArpeggiatorMode.Descending)
                 {
                     noteIndex--;
                     if (noteIndex < 0) noteIndex = notes.Count - 1;
                 }
-                else if(mode == ArpeggiatorMode.UpDown)
+                else if (mode == ArpeggiatorMode.UpDown)
                 {
                     noteIndex += up ? 1 : -1;
-                    if (noteIndex >= notes.Count-1) up = false;
+                    if (noteIndex >= notes.Count - 1) up = false;
                     if (noteIndex <= 0) up = true;
                     if (notes.Count == 1) noteIndex = 0;
                 }
+                else if (mode == ArpeggiatorMode.Random)
+                {
+                    noteIndex = random.Next(0, Mathf.Max(0,notes.Count - 1));
+                }
                 else
                 {
-                    noteIndex = random.Next(0, notes.Count - 1);
+                    noteIndex++;
+                    if (noteIndex >= noteLayout.Length)
+                    {
+                        noteIndex = 0;
+                    }
+                    
                 }
 
-
-                
-                if (noteIndex>=notes.Count) continue;
-
-                device.StartNote(notes[noteIndex]);
+                if (noteIndex >= notes.Count && mode!=ArpeggiatorMode.Layout) continue;
+                if (notes.Count == 0) continue;
+                if (mode == ArpeggiatorMode.Layout)
+                    device.StartNote(notes[Mathf.Min(noteLayout[noteIndex],notes.Count-1)]);
+                else
+                    device.StartNote(notes[noteIndex]);
             }
         }
     }
@@ -105,5 +117,6 @@ public enum ArpeggiatorMode
     Ascending,
     Descending,
     UpDown,
-    Random
+    Random,
+    Layout
 }
