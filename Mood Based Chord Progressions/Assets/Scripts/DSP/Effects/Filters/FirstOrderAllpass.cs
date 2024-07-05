@@ -14,5 +14,4 @@ public class FirstOrderAllpass
         z1 = output;
         return z0;
     }
-
 }

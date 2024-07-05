@@ -32,8 +32,8 @@ public class SynthVoice
 
         adsrLowpass = new ADSR(44800, 1f, 0.2f, 0.3f, 0.3f);
         lowpass = new Biquad();
-        lowpass.type = BiquadCalculator.BiquadType.LOWPASS;
-        lowpass.SetCoeffs(6000,0.7f,0,BiquadCalculator.BiquadType.LOWPASS);
+        lowpass.type = BiquadType.Lowpass;
+        lowpass.CalcCoeffs(6000,0.7f,0,BiquadType.Lowpass);
     }
 
     public void StartNote(int midiNote, float vel)
@@ -76,7 +76,7 @@ public class SynthVoice
 
             float output = oscillator1.RenderSample() * velocity * adsrValue * 0.1f;
 
-            lowpass.SetCoeffs(adsrLowValue*2200, 0.7f, 0, BiquadCalculator.BiquadType.LOWPASS);
+            lowpass.CalcCoeffs(adsrLowValue*2200, 0.7f, 0, BiquadType.Lowpass);
             output = lowpass.Process(output);
             for (int channel=0; channel<numChannels; channel++)
             {

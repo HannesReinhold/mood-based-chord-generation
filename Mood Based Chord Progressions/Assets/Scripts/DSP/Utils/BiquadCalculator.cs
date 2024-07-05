@@ -5,20 +5,19 @@ using System;
 
 public static class BiquadCalculator
 {
-    public enum BiquadType
-    {
-        LOWPASS,
-        HIGHPASS,
-        BANDPASS,
-        NOTCH,
-        PEAK,
-        LOWSHELF,
-        HIGHSHELF
-
-    }
+    
 
     static float sqrt2 = System.MathF.Sqrt(2);
 
+    /// <summary>
+    /// Biquad calculator from: https://www.earlevel.com/main/2011/01/02/biquad-formulas/
+    /// </summary>
+    /// <param name="f">Cutoff frequency</param>
+    /// <param name="q">Resonance</param>
+    /// <param name="pG">Gain</param>
+    /// <param name="type">Filter type</param>
+    /// <param name="sampleRate">Sample rate of the filter</param>
+    /// <returns></returns>
     public static float[] CalcCoeffs(float f, float q, float pG, BiquadType type, float sampleRate)
     {
         f = f / sampleRate;
@@ -32,7 +31,7 @@ public static class BiquadCalculator
 
         switch (type)
         {
-            case BiquadType.LOWPASS:
+            case BiquadType.Lowpass:
                 norm = 1 / (1 + K / q + K * K);
                 a0 = K * K * norm;
                 a1 = 2 * a0;
@@ -41,7 +40,7 @@ public static class BiquadCalculator
                 b2 = (1 - K / q + K * K) * norm;
                 break;
 
-            case BiquadType.HIGHPASS:
+            case BiquadType.Highpass:
                 norm = 1 / (1 + K / q + K * K);
                 a0 = 1 * norm;
                 a1 = -2 * a0;
@@ -50,7 +49,7 @@ public static class BiquadCalculator
                 b2 = (1 - K / q + K * K) * norm;
                 break;
 
-            case BiquadType.BANDPASS:
+            case BiquadType.Bandpass:
                 norm = 1 / (1 + K / q + K * K);
                 a0 = K / q * norm;
                 a1 = 0;
@@ -59,7 +58,7 @@ public static class BiquadCalculator
                 b2 = (1 - K / q + K * K) * norm;
                 break;
 
-            case BiquadType.NOTCH:
+            case BiquadType.Notch:
                 norm = 1 / (1 + K / q + K * K);
                 a0 = (1 + K * K) * norm;
                 a1 = 2 * (K * K - 1) * norm;
@@ -68,7 +67,7 @@ public static class BiquadCalculator
                 b2 = (1 - K / q + K * K) * norm;
                 break;
 
-            case BiquadType.PEAK:
+            case BiquadType.Peak:
                 if (pG >= 0)
                 {    // boost
                     norm = 1 / (1 + 1 / q * K + K * K);
@@ -88,7 +87,7 @@ public static class BiquadCalculator
                     b2 = (1 - V / q * K + K * K) * norm;
                 }
                 break;
-            case BiquadType.LOWSHELF:
+            case BiquadType.Lowshelf:
                 if (pG >= 0)
                 {    // boost
                     float sqrt2V = System.MathF.Sqrt(2 * V);
@@ -110,7 +109,7 @@ public static class BiquadCalculator
                     b2 = (1 - sqrt2V * K + V * K * K) * norm;
                 }
                 break;
-            case BiquadType.HIGHSHELF:
+            case BiquadType.Highshelf:
                 if (pG >= 0)
                 {    // boost
                     float sqrt2V = System.MathF.Sqrt(2 * V);
@@ -132,8 +131,31 @@ public static class BiquadCalculator
                     b2 = (V - sqrt2V * K + K * K) * norm;
                 }
                 break;
+            case BiquadType.Allpass:
+                norm = 1 / (1 + K / q + K * K);
+                a0 = (1 - K / q + K * K) * norm;
+                a1 = 2 * (K * K - 1) * norm;
+                a2 = 1;
+                b1 = a1;
+                b2 = a0;
+                break;
+
         }
 
         return new float[5] {a0, a1, a2, b1, b2};
     }
+
+    
+}
+public enum BiquadType
+{
+    Lowpass,
+    Highpass,
+    Bandpass,
+    Notch,
+    Peak,
+    Lowshelf,
+    Highshelf,
+    Allpass
+
 }
