@@ -2,13 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class KeyboardInput : MonoBehaviour
+public class KeyboardInput
 {
     private int octave = 0;
 
-    public Arpeggiator device;
-
-    public Synthesizer synth;
+    public MidiDevice device;
 
     private Dictionary<KeyCode, int> midiKeyBindings = new Dictionary<KeyCode, int>()
     {
@@ -19,14 +17,8 @@ public class KeyboardInput : MonoBehaviour
 
     };
 
-    private void Awake()
-    {
-        device.device = synth;
-    }
 
-
-    // Update is called once per frame
-    void Update()
+    public void Update()
     {
 
 

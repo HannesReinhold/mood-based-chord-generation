@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
-public class Arpeggiator : MonoBehaviour, MidiDevice
+public class Arpeggiator : MidiDevice
 {
-    public MidiDevice device;
 
 
-    public float bpm;
-    public float rate;
+    public float bpm = 120;
+    public float rate = 1;
 
     private float timer = 0;
 
@@ -36,77 +35,73 @@ public class Arpeggiator : MonoBehaviour, MidiDevice
        canPlay = false;
     }
 
-
-    private void OnAudioFilterRead(float[] data, int channels)
+    public void UpdateArp()
     {
-
-        for(int i=0; i<data.Length; i+=2)
+        timer += 1f / 48000f;
+        if (timer > 60f / bpm * rate)
         {
-            timer += 1f / 48000f;
-            if (timer > 60f / bpm * rate)
+            timer = 0;
+            device.StopAllNotes();
+
+            if (mode == ArpeggiatorMode.Ascending)
             {
-                timer = 0;
-                device.StopAllNotes();
-
-                if (mode == ArpeggiatorMode.Ascending)
+                noteIndex++;
+                if (noteIndex >= notes.Count)
                 {
-                    noteIndex++;
-                    if (noteIndex >= notes.Count)
-                    {
-                        noteIndex = 0;
-                    }
+                    noteIndex = 0;
                 }
-                else if (mode == ArpeggiatorMode.Descending)
-                {
-                    noteIndex--;
-                    if (noteIndex < 0) noteIndex = notes.Count - 1;
-                }
-                else if (mode == ArpeggiatorMode.UpDown)
-                {
-                    noteIndex += up ? 1 : -1;
-                    if (noteIndex >= notes.Count - 1) up = false;
-                    if (noteIndex <= 0) up = true;
-                    if (notes.Count == 1) noteIndex = 0;
-                }
-                else if (mode == ArpeggiatorMode.Random)
-                {
-                    noteIndex = random.Next(0, Mathf.Max(0,notes.Count - 1));
-                }
-                else
-                {
-                    noteIndex++;
-                    if (noteIndex >= noteLayout.Length)
-                    {
-                        noteIndex = 0;
-                    }
-                    
-                }
-
-                if (noteIndex >= notes.Count && mode!=ArpeggiatorMode.Layout) continue;
-                if (notes.Count == 0) continue;
-                if (mode == ArpeggiatorMode.Layout)
-                    device.StartNote(notes[Mathf.Min(noteLayout[noteIndex],notes.Count-1)]);
-                else
-                    device.StartNote(notes[noteIndex]);
             }
+            else if (mode == ArpeggiatorMode.Descending)
+            {
+                noteIndex--;
+                if (noteIndex < 0) noteIndex = notes.Count - 1;
+            }
+            else if (mode == ArpeggiatorMode.UpDown)
+            {
+                noteIndex += up ? 1 : -1;
+                if (noteIndex >= notes.Count - 1) up = false;
+                if (noteIndex <= 0) up = true;
+                if (notes.Count == 1) noteIndex = 0;
+            }
+            else if (mode == ArpeggiatorMode.Random)
+            {
+                noteIndex = random.Next(0, Mathf.Max(0, notes.Count - 1));
+            }
+            else
+            {
+                noteIndex++;
+                if (noteIndex >= noteLayout.Length)
+                {
+                    noteIndex = 0;
+                }
+
+            }
+
+            if (noteIndex >= notes.Count && mode != ArpeggiatorMode.Layout) return;
+            if (notes.Count == 0) return;
+            if (mode == ArpeggiatorMode.Layout)
+                device.StartNote(notes[Mathf.Min(noteLayout[noteIndex], notes.Count - 1)]);
+            else
+                device.StartNote(notes[noteIndex]);
         }
+
     }
 
-    public void StartNote(int noteID)
+    public override void StartNote(int noteID)
     {
         if (notes.Contains(noteID)) return;
         notes.Sort();
         notes.Add(noteID);
     }
 
-    public void StopNote(int noteID)
+    public override void StopNote(int noteID)
     {
         notes.Remove(noteID);
         notes.Sort();
         device.StopNote(noteID);
     }
 
-    public void StopAllNotes()
+    public override void StopAllNotes()
     {
         notes.Clear();
     }

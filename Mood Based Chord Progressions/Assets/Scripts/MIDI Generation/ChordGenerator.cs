@@ -16,8 +16,6 @@ public class ChordGenerator : MidiDevice
     public bool has9th = false;
     public bool has11th = false;
 
-    public MidiDevice device;
-
     private int[,] scales =
     {
         { 0, 2, 4, 5, 7, 9, 11  },
@@ -107,19 +105,19 @@ public class ChordGenerator : MidiDevice
         }
     }
 
-    public void StartNote(int noteID)
+    public override void StartNote(int noteID)
     {
         //if(device.GetType() == )
 
         StartChord(BuildChord(key, scaleMode, (Chord)(noteID%7), Mathf.FloorToInt((noteID) / 7)+octave, has1st, has3rd, has5th, has7th, has9th, has11th));
     }
 
-    public void StopNote(int noteID)
+    public override void StopNote(int noteID)
     {
         StopChord(BuildChord(key, scaleMode, (Chord)(noteID%7), Mathf.FloorToInt((noteID) / 7f)+octave, has1st, has3rd, has5th, has7th, has9th, has11th));
     }
 
-    public void StopAllNotes()
+    public override void StopAllNotes()
     {
         device.StopAllNotes();
     }
