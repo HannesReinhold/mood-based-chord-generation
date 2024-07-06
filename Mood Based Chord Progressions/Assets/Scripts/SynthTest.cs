@@ -32,6 +32,7 @@ public class SynthTest : MonoBehaviour
     public bool phaserPositiveFeedback = true;
     [Range(0, 20)] public float delayInMs = 0;
     [Range(0, 1)] public float delayFeedback = 0.5f;
+    [Range(0, 2)] public int band=0;
 
 
     // Start is called before the first frame update
@@ -84,6 +85,8 @@ public class SynthTest : MonoBehaviour
 
         synth.delayInMs = delayInMs;
         synth.delayFeedback = delayFeedback;
+
+        synth.band = band;
     }
 
     private void OnAudioFilterRead(float[] data, int channels)

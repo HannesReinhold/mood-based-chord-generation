@@ -4,6 +4,8 @@ using UnityEngine;
 
 public static class MathUtils
 {
+
+    public static float Sqrt2 = 1.41421356237f;
     public static float NoteToFreq(float m)
     {
         return Mathf.Pow(2f, (m-69) / 12f) * 440f;

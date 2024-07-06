@@ -24,6 +24,8 @@ public class Synthesizer : MidiDevice
     public float delayInMs = 0;
     public float delayFeedback = 0;
 
+    public int band;
+
 
     private int numActiveVoices = 0;
     public SynthVoice[] voices;
@@ -32,6 +34,7 @@ public class Synthesizer : MidiDevice
     private HardClip dist = new HardClip();
     private Phaser phaser = new Phaser();
     private FeedbackDelay delay = new FeedbackDelay(48000, 48000);
+    private BandSplitter bandSplitter = new BandSplitter(3, new float[] {300 , 1000});
 
 
     public override void StartNote(int noteID)
@@ -114,7 +117,7 @@ public class Synthesizer : MidiDevice
         delay.feedback = delayFeedback;
         delay.positiveFeedback = phaserPositiveFeedback;
 
-        for(int i=0; i<voices.Length; i++)
+        for (int i=0; i<voices.Length; i++)
         {
             voices[i].lowpass.SetCoeffs(cutoffFrequency, Q, 0);
         }
@@ -129,9 +132,12 @@ public class Synthesizer : MidiDevice
 
 
         // Process effects
-        for (int i=0; i<data.Length; i++)
+        for (int i=0; i<data.Length; i+=2)
         {
 
+            float[] bands = bandSplitter.Process(data[i]);
+            data[i + 1] = bands[0]+bands[1]+bands[2];
+            data[i] = 0;
         }
 
         

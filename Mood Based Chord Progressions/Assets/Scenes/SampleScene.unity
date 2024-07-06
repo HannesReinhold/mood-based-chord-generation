@@ -590,10 +590,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   oscilloscope: {fileID: 174229487}
   chords: 00000000010000000200000003000000
-  phaserFreq: 0.06
+  phaserFreq: 0.437
   phaserFeedback: 0.113
   phaserStages: 4
   phaserPositiveFeedback: 1
+  delayInMs: 12.21
+  delayFeedback: 0.5
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
