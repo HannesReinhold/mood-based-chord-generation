@@ -34,6 +34,12 @@ public class SynthTest : MonoBehaviour
     [Range(0, 1)] public float delayFeedback = 0.5f;
     [Range(0, 2)] public int band=0;
 
+    [Range(0, 100)] public float attack;
+    [Range(0, 100)] public float release;
+    [Range(-50, 10)] public float upperThreshold;
+    [Range(-50, 10)] public float lowerThreshold;
+    [Range(0, 10)] public float ratio;
+
 
     // Start is called before the first frame update
     void Start()
@@ -54,6 +60,12 @@ public class SynthTest : MonoBehaviour
 
         synth.PrepareToPlay();
         synth2.PrepareToPlay();
+
+        synth.attack = attack;
+        synth2.release = release;
+        synth2.lowerThreshold = lowerThreshold;
+        synth2.upperThreshold = upperThreshold;
+        synth2.ratio = ratio;
 
         for(int i=0; i<synth2.maxVoices; i++)
         {
@@ -87,6 +99,12 @@ public class SynthTest : MonoBehaviour
         synth.delayFeedback = delayFeedback;
 
         synth.band = band;
+
+        synth.attack = attack;
+        synth.release = release;
+        synth.lowerThreshold = lowerThreshold;
+        synth.upperThreshold = upperThreshold;
+        synth.ratio = ratio;
     }
 
     private void OnAudioFilterRead(float[] data, int channels)

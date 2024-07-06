@@ -173,7 +173,7 @@ public class WavetableOscillator
         else if (frequency > 340) wavetableID = 4;
         else if (frequency > 171) wavetableID = 3;
         else if (frequency > 85) wavetableID = 2;
-        else wavetableID = 1;
+        else wavetableID = 0;
     }
 
 
