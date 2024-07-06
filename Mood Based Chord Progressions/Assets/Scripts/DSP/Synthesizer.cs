@@ -114,8 +114,6 @@ public class Synthesizer : MidiDevice
         delay.feedback = delayFeedback;
         delay.positiveFeedback = phaserPositiveFeedback;
 
-        System.Random random = new System.Random();
-
         for(int i=0; i<voices.Length; i++)
         {
             voices[i].lowpass.SetCoeffs(cutoffFrequency, Q, 0);
@@ -133,10 +131,7 @@ public class Synthesizer : MidiDevice
         // Process effects
         for (int i=0; i<data.Length; i++)
         {
-            //data[i] = dist.ProcesSample(data[i]) * masterGain;
 
-            //data[i] = phaser.Process(data[i]);
-            data[i] = delay.Process(data[i]);   
         }
 
         

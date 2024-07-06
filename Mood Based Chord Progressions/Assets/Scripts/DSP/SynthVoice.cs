@@ -33,7 +33,7 @@ public class SynthVoice
         adsrLowpass = new ADSR(44800, 1f, 0.2f, 1f, 0.3f);
         lowpass = new Biquad();
         lowpass.type = BiquadType.Lowpass;
-        lowpass.CalcCoeffs(6000,0.7f,0,BiquadType.Lowpass);
+        lowpass.CalcCoeffs(22000,0.7f,0,BiquadType.Lowpass);
     }
 
     public void StartNote(int midiNote, float vel)
