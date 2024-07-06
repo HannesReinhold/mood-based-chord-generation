@@ -21,6 +21,9 @@ public class Synthesizer : MidiDevice
     [Range(1, 32)] public int phaserStages = 4;
     public bool phaserPositiveFeedback = true;
 
+    public float delayInMs = 0;
+    public float delayFeedback = 0;
+
 
     private int numActiveVoices = 0;
     public SynthVoice[] voices;
@@ -28,6 +31,7 @@ public class Synthesizer : MidiDevice
     // Effects
     private HardClip dist = new HardClip();
     private Phaser phaser = new Phaser();
+    private FeedbackDelay delay = new FeedbackDelay(48000, 48000);
 
 
     public override void StartNote(int noteID)
@@ -106,6 +110,12 @@ public class Synthesizer : MidiDevice
         phaser.numStages = phaserStages;
         phaser.positiveFeedback = phaserPositiveFeedback;
 
+        delay.SetDelayInMs(delayInMs);
+        delay.feedback = delayFeedback;
+        delay.positiveFeedback = phaserPositiveFeedback;
+
+        System.Random random = new System.Random();
+
         for(int i=0; i<voices.Length; i++)
         {
             voices[i].lowpass.SetCoeffs(cutoffFrequency, Q, 0);
@@ -123,9 +133,10 @@ public class Synthesizer : MidiDevice
         // Process effects
         for (int i=0; i<data.Length; i++)
         {
-            data[i] = dist.ProcesSample(data[i]) * masterGain;
+            //data[i] = dist.ProcesSample(data[i]) * masterGain;
 
-            data[i] = phaser.Process(data[i]);
+            //data[i] = phaser.Process(data[i]);
+            data[i] = delay.Process(data[i]);   
         }
 
         
