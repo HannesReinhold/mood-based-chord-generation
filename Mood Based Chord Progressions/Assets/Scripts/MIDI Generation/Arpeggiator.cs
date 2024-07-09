@@ -37,6 +37,8 @@ public class Arpeggiator : MidiDevice
 
     public void UpdateArp()
     {
+        if (device == null) return;
+
         timer += 1f / 48000f;
         if (timer > 60f / bpm * rate)
         {
@@ -96,6 +98,7 @@ public class Arpeggiator : MidiDevice
 
     public override void StopNote(int noteID)
     {
+        if (device == null) return;
         notes.Remove(noteID);
         notes.Sort();
         device.StopNote(noteID);

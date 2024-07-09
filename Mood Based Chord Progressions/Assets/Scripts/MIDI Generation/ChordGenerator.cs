@@ -93,6 +93,7 @@ public class ChordGenerator : MidiDevice
 
     private void StartChord(List<int> notes)
     {
+        if (device == null) return;
         for(int i=0; i<notes.Count; i++)
         {
             device.StartNote(notes[i]);
@@ -101,6 +102,7 @@ public class ChordGenerator : MidiDevice
 
     private void StopChord(List<int> notes)
     {
+        if (device == null) return;
         device.StopAllNotes();
 
         for (int i = 0; i < notes.Count; i++)
@@ -123,6 +125,7 @@ public class ChordGenerator : MidiDevice
 
     public override void StopAllNotes()
     {
+        if (device == null) return;
         device.StopAllNotes();
     }
 }

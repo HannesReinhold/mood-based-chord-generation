@@ -20,7 +20,7 @@ public class KeyboardInput
 
     public void Update()
     {
-
+        if (device == null) return;
 
         foreach (KeyCode kcode in System.Enum.GetValues(typeof(KeyCode)))
         {
