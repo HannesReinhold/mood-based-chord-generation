@@ -2,71 +2,77 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Synthesizer : MonoBehaviour
+public class Synthesizer : MidiDevice
 {
 
     public int numChannels = 2;
     public int maxVoices = 16;
 
+    public float masterGain = 1;
+    public float panning = 0.5f;
+    public float drive = 1;
+    public float dcOffset;
+    public float cutoffFrequency = 22000;
+    public float Q = 1;
+
+    public int octave = 0;
+
+    [Range(0, 1)] public float phaserFreq = 0;
+    [Range(0, 0.9999f)] public float phaserFeedback = 0;
+    [Range(1, 32)] public int phaserStages = 4;
+    public bool phaserPositiveFeedback = true;
+
+    public float delayInMs = 0;
+    public float delayFeedback = 0;
+
+    public int band;
+
+    public float attack;
+    public float release;
+    public float upperThreshold;
+    public float lowerThreshold;
+    public float ratio;
+
 
     private int numActiveVoices = 0;
+    public SynthVoice[] voices;
+
+    // Effects
+    private HardClip dist = new HardClip();
+    private Phaser phaser = new Phaser();
+    private FeedbackDelay delay = new FeedbackDelay(48000, 48000);
+    private BandSplitter bandSplitter = new BandSplitter(3, new float[] {88 , 2000});
+    private Compressor comp1 = new Compressor(64);
+    private Compressor comp2 = new Compressor(64);
+    private Compressor comp3 = new Compressor(64);
+    private Biquad filter = new Biquad();
+
+    private Chorus chorus = new Chorus(48000, 5000, 8);
+    private Haas haas = new Haas(48000);
+    private Panner panner = new Panner();
 
 
-    private SynthVoice[] voices;
-
-
-    public LineRenderer lineRenderer;
-    private float[] dataCopy;
-
-
-
-    void Awake()
+    public override void StartNote(int noteID)
     {
-        PrepareToPlay();
-        
-
+        PlayNextAvailableVoice(noteID);
     }
 
-    void Update()
+    public override void StopNote(int noteID)
     {
-        if (Input.GetKeyDown("a")) PlayNextAvailableVoice(0);
-        if (Input.GetKeyUp("a")) StopVoice(0);
-        if (Input.GetKeyDown("s")) PlayNextAvailableVoice(2);
-        if (Input.GetKeyUp("s")) StopVoice(2);
-        if (Input.GetKeyDown("d")) PlayNextAvailableVoice(4);
-        if (Input.GetKeyUp("d")) StopVoice(4);
-        if (Input.GetKeyDown("f")) PlayNextAvailableVoice(5);
-        if (Input.GetKeyUp("f")) StopVoice(5);
-        if (Input.GetKeyDown("g")) PlayNextAvailableVoice(7);
-        if (Input.GetKeyUp("g")) StopVoice(7);
-        if (Input.GetKeyDown("h")) PlayNextAvailableVoice(9);
-        if (Input.GetKeyUp("h")) StopVoice(9);
-        if (Input.GetKeyDown("j")) PlayNextAvailableVoice(11);
-        if (Input.GetKeyUp("j")) StopVoice(11);
-        if (Input.GetKeyDown("k")) PlayNextAvailableVoice(12);
-        if (Input.GetKeyUp("k")) StopVoice(12);
-        if (Input.GetKeyDown("l")) PlayNextAvailableVoice(14);
-        if (Input.GetKeyUp("l")) StopVoice(14);
-
-
-        lineRenderer.positionCount = dataCopy.Length/2;
-        for (int i = 0; i < dataCopy.Length; i += 2)
-        {
-            lineRenderer.SetPosition(i/2, new Vector3(Mathf.Lerp(-1, 1, (float)i / dataCopy.Length), dataCopy[i]*0.25f, 0));
-        }
+        StopVoice(noteID);
     }
 
-    private void OnAudioFilterRead(float[] data, int channels)
+    public override void StopAllNotes()
     {
-        ProcessBlock(data);
-
+        StopAllVoices();
     }
+
 
     public void PlayNextAvailableVoice(int noteID)
     {
         for(int i=0; i < voices.Length; i++)
         {
-            if (!voices[i].CanPlay()) { voices[i].StartNote(noteID, 1); numActiveVoices++;  return; }
+            if (!voices[i].CanPlay()) { voices[i].StartNote(noteID+octave*12, 1); numActiveVoices++;  return; }
         }
     }
 
@@ -76,7 +82,7 @@ public class Synthesizer : MonoBehaviour
         {
             if (voices[i].noteID == noteID && voices[i].CanPlay())
             {
-                voices[i].StopNote(noteID, 1);
+                voices[i].StopNote(noteID+octave*12, 1);
                 numActiveVoices--;
                 return;
             }
@@ -84,7 +90,19 @@ public class Synthesizer : MonoBehaviour
         }
     }
 
+    public void StopAllVoices()
+    {
+        for (int i = 0; i < voices.Length; i++)
+        {
+            if (voices[i].CanPlay())
+            {
+                voices[i].StopNote(i, 1);
+                numActiveVoices--;
+                //return;
+            }
 
+        }
+    }
 
 
     public void PrepareToPlay()
@@ -99,9 +117,60 @@ public class Synthesizer : MonoBehaviour
 
         // Setup Effects
     }
-
-    public void ProcessBlock(float[] data)
+    float z0 = 0;
+    float z1 = 0;
+    float m = 1;
+    bool t = false;
+    public void ProcessBlock(float[] data, int numChannels)
     {
+        dist.SetDrive(100);
+        dist.SetDcOffset(dcOffset);
+
+        phaser.fc = phaserFreq;
+        phaser.feedback = phaserFeedback;
+        phaser.numStages = phaserStages;
+        phaser.positiveFeedback = phaserPositiveFeedback;
+
+        delay.SetDelayInMs(delayInMs);
+        delay.feedback = delayFeedback;
+        delay.positiveFeedback = phaserPositiveFeedback;
+
+        comp1.SetAttack(1);
+        comp1.SetRelease(100);
+        comp1.upperThreshold = -8.5f;
+        comp1.lowerThreshold = -10.0f;
+        comp1.downwardsRatio = 16;
+        comp1.upwardsRatio = 16;
+
+        comp2.SetAttack(1);
+        comp2.SetRelease(100);
+        comp2.upperThreshold = -8.0f;
+        comp2.lowerThreshold = -10.2f;
+        comp2.downwardsRatio = 16;
+        comp2.upwardsRatio = 16;
+
+        comp3.SetAttack(1);
+        comp3.SetRelease(50);
+        comp3.upperThreshold = -6.5f;
+        comp3.lowerThreshold = -8.0f;
+        comp2.downwardsRatio = 16;
+        comp2.upwardsRatio = 16;
+
+        chorus.feedback = delayFeedback;
+
+        filter.CalcCoeffs(phaserFreq*22000,0.2f,1,BiquadType.Lowpass);
+
+        panner.pan = panning;
+
+
+
+        System.Random r = new System.Random();  
+
+        for (int i=0; i<voices.Length; i++)
+        {
+            //voices[i].lowpass.SetCoeffs(cutoffFrequency, Q, 0);
+        }
+
         // Get samples from generators per voice
         for(int i=0; i < voices.Length; i++)
         {
@@ -110,10 +179,36 @@ public class Synthesizer : MonoBehaviour
             voices[i].RenderBlock(data, numChannels, numActiveVoices);
         }
 
-        dataCopy = data;
+        
 
         // Process effects
+        for (int i=0; i<data.Length; i+=2)
+        {
+            //data[i] += (float)(r.NextDouble()*2-1) * 0.01f;
+            //data[i] = dist.ProcesSample(data[i]);
 
+            //data[i] = filter.Process(data[i]);
+            /*
+            data[i] = (float)r.NextDouble() * 2 - 1;
+            if(z1> 48000)
+            {
+                z1 = 0;
+                t = !t;
+            }
+            z1++;
 
+            data[i] *= t ? 0.1f : 1;
+            */
+            //float[] bands = bandSplitter.Process(data[i]);
+            //data[i] = comp1.Process(bands[0]*5)+ comp2.Process(bands[1]*5)*0.9f+ comp3.Process(bands[2]*10)*0.8f;
+            //data[i] = bands[2];
+            //data[i + 1] = bands[0] + bands[1] + bands[2];
+            // data[i+1] = 0;
+        }
+
+        //chorus.ProcessBlock(data, numChannels);
+        haas.ProcessBlock(data, numChannels);
+        panner.ProcessBlock(data, numChannels);
+        
     }
 }
