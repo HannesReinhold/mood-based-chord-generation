@@ -28,7 +28,7 @@ public class SynthTest : MonoBehaviour
 
     [Range(0, 1)] public float panning = 0.5f;
     [Range(0,1)]public float phaserFreq = 0;
-    [Range(0, 0.9999f)] public float phaserFeedback = 0;
+    [Range(0, 10)] public float phaserFeedback = 0;
     [Range(1, 32)] public int phaserStages = 4;
     public bool phaserPositiveFeedback = true;
     [Range(0, 20)] public float delayInMs = 0;
@@ -88,7 +88,15 @@ public class SynthTest : MonoBehaviour
         oscilloscope.positionCount = dataCopy.Length / 2;
         for (int i = 0; i < dataCopy.Length; i += 2)
         {
-            oscilloscope.SetPosition(i / 2, new Vector3(Mathf.Lerp(-1, 1, (float)i / dataCopy.Length), dataCopy[i] * 0.25f, 0));
+            //oscilloscope.SetPosition(i / 2, new Vector3(Mathf.Lerp(-1, 1, (float)i / dataCopy.Length), dataCopy[i] * 0.25f, 0));
+        }
+
+        float[] coeffs = BiquadCalculator.CalcCoeffs(phaserFreq*24000, phaserFeedback, 0, BiquadType.Lowpass, 48000);
+        for (int i = 0; i < 1024; i += 1)
+        {
+            float fLog = Mathf.Lerp(Mathf.Log10(20)*10, Mathf.Log10(24000)*10, (float)i / 1024);
+            float f = MathUtils.DbToLin(fLog);
+            oscilloscope.SetPosition(i / 2, new Vector3(Mathf.Lerp(-1, 1, (float)i / dataCopy.Length), BiquadCalculator.GetFrequencyResponse(f,coeffs, 48000)*2-1, 0));
         }
 
         synth.phaserFreq = phaserFreq;

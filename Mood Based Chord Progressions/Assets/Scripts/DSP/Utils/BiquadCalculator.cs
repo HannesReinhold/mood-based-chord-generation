@@ -145,6 +145,28 @@ public static class BiquadCalculator
         return new float[5] {a0, a1, a2, b1, b2};
     }
 
+
+    public static float GetFrequencyResponse(float freq, float[] coeffs, float sampleRate)
+    {
+
+
+        float w = freq / sampleRate * Mathf.PI*2;
+        float phi = Mathf.Pow(Mathf.Sin(w),2);
+
+        float sinW = Mathf.Sin(w);
+        float cosW = Mathf.Cos(w);
+
+        float mag = 0.25f * Mathf.Log((Mathf.Sqrt(square(coeffs[0] * square(cosW) - coeffs[0] * square(sinW) + coeffs[1] * cosW + coeffs[2]) + square(2f * coeffs[0] * cosW * sinW + coeffs[1] * (sinW))) /
+                          Mathf.Sqrt(square(square(cosW) - square(sinW) + coeffs[3] * cosW + coeffs[4]) + square(2f * cosW * sinW + coeffs[3] * (sinW)))));
+
+        return MathUtils.DbToLin(Mathf.Max(-1.5f,mag));
+    }
+
+    private static float square(float input)
+    {
+        return input * input;
+    }
+
     
 }
 public enum BiquadType
