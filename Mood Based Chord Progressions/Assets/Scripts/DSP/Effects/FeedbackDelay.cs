@@ -29,6 +29,14 @@ public class FeedbackDelay
         while (readPointer < 0) readPointer += delayInSamples;
     }
 
+    public void SetDelayInSamples(float del)
+    {
+        delayInSamples = del;
+
+        readPointer = writePointer - delayInSamples;
+        while (readPointer < 0) readPointer += delayInSamples;
+    }
+
     public void SetDelayInHz(float freq)
     {
         delayInSamples = freq * 0.001f * sampleRate;

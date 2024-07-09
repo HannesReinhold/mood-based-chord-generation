@@ -40,7 +40,7 @@ public class FirFilter
         {
             int index = i - bufferSize / 2;
 
-            if (i % 2 == 1) coefficients[i] = 2f / (Mathf.PI * index) * Mathf.Sin(index*f);
+            if (i % 2 == 1) coefficients[i] = 2f / (Mathf.PI * index);
             if (index == 0) coefficients[i] = 0;
         }
     }

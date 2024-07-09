@@ -52,6 +52,7 @@ public class Synthesizer : MidiDevice
     private Panner panner = new Panner();
 
     private FirFilter firFilter = new FirFilter(257);
+    private RingModulation ringMod = new RingModulation(48000);
 
 
     public override void StartNote(int noteID)
@@ -133,8 +134,8 @@ public class Synthesizer : MidiDevice
         phaser.numStages = phaserStages;
         phaser.positiveFeedback = phaserPositiveFeedback;
 
-        delay.SetDelayInMs(delayInMs);
-        delay.feedback = delayFeedback;
+        delay.SetDelayInSamples(128);
+        delay.feedback = 0;
         delay.positiveFeedback = phaserPositiveFeedback;
 
         comp1.SetAttack(1);
@@ -165,6 +166,7 @@ public class Synthesizer : MidiDevice
         panner.pan = panning;
 
         firFilter.SetHilbert(phaserFreq*10);
+        ringMod.SetFrequency(phaserFeedback * 1000);
 
 
 
@@ -188,7 +190,7 @@ public class Synthesizer : MidiDevice
         // Process effects
         for (int i=0; i<data.Length; i+=2)
         {
-            data[i] = (float)(r.NextDouble()*2-1) * 0.1f;
+            //data[i] = (float)(r.NextDouble()*2-1) * 0.1f;
             //data[i] = dist.ProcesSample(data[i]);
 
             //data[i] = filter.Process(data[i]);
@@ -208,10 +210,11 @@ public class Synthesizer : MidiDevice
             //data[i] = bands[2];
             //data[i + 1] = bands[0] + bands[1] + bands[2];
             // data[i+1] = 0;
-            data[i] = firFilter.Process(data[i]);
+            float a = delay.Process(data[i]);
+            data[i] = firFilter.Process(data[i])-a;
             data[i + 1] = data[i];
         }
-
+        ringMod.ProcessBlock(data, numChannels);
         //chorus.ProcessBlock(data, numChannels);
         //haas.ProcessBlock(data, numChannels);
         //panner.ProcessBlock(data, numChannels);
