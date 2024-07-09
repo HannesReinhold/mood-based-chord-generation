@@ -51,6 +51,8 @@ public class Synthesizer : MidiDevice
     private Haas haas = new Haas(48000);
     private Panner panner = new Panner();
 
+    private FirFilter firFilter = new FirFilter(257);
+
 
     public override void StartNote(int noteID)
     {
@@ -162,6 +164,8 @@ public class Synthesizer : MidiDevice
 
         panner.pan = panning;
 
+        firFilter.SetHilbert(phaserFreq*10);
+
 
 
         System.Random r = new System.Random();  
@@ -184,7 +188,7 @@ public class Synthesizer : MidiDevice
         // Process effects
         for (int i=0; i<data.Length; i+=2)
         {
-            //data[i] += (float)(r.NextDouble()*2-1) * 0.01f;
+            data[i] = (float)(r.NextDouble()*2-1) * 0.1f;
             //data[i] = dist.ProcesSample(data[i]);
 
             //data[i] = filter.Process(data[i]);
@@ -204,11 +208,13 @@ public class Synthesizer : MidiDevice
             //data[i] = bands[2];
             //data[i + 1] = bands[0] + bands[1] + bands[2];
             // data[i+1] = 0;
+            data[i] = firFilter.Process(data[i]);
+            data[i + 1] = data[i];
         }
 
         //chorus.ProcessBlock(data, numChannels);
-        haas.ProcessBlock(data, numChannels);
-        panner.ProcessBlock(data, numChannels);
+        //haas.ProcessBlock(data, numChannels);
+        //panner.ProcessBlock(data, numChannels);
         
     }
 }
