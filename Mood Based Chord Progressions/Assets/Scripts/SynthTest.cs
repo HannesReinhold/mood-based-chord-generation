@@ -26,6 +26,7 @@ public class SynthTest : MonoBehaviour
     public List<int> chords;
     int chordIndex = 0;
 
+    [Range(0, 1)] public float panning = 0.5f;
     [Range(0,1)]public float phaserFreq = 0;
     [Range(0, 0.9999f)] public float phaserFeedback = 0;
     [Range(1, 32)] public int phaserStages = 4;
@@ -105,6 +106,7 @@ public class SynthTest : MonoBehaviour
         synth.lowerThreshold = lowerThreshold;
         synth.upperThreshold = upperThreshold;
         synth.ratio = ratio;
+        synth.panning = panning;
     }
 
     private void OnAudioFilterRead(float[] data, int channels)

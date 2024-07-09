@@ -9,6 +9,7 @@ public class Synthesizer : MidiDevice
     public int maxVoices = 16;
 
     public float masterGain = 1;
+    public float panning = 0.5f;
     public float drive = 1;
     public float dcOffset;
     public float cutoffFrequency = 22000;
@@ -48,6 +49,7 @@ public class Synthesizer : MidiDevice
 
     private Chorus chorus = new Chorus(48000, 5000, 8);
     private Haas haas = new Haas(48000);
+    private Panner panner = new Panner();
 
 
     public override void StartNote(int noteID)
@@ -158,6 +160,8 @@ public class Synthesizer : MidiDevice
 
         filter.CalcCoeffs(phaserFreq*22000,0.2f,1,BiquadType.Lowpass);
 
+        panner.pan = panning;
+
 
 
         System.Random r = new System.Random();  
@@ -204,6 +208,7 @@ public class Synthesizer : MidiDevice
 
         //chorus.ProcessBlock(data, numChannels);
         haas.ProcessBlock(data, numChannels);
+        panner.ProcessBlock(data, numChannels);
         
     }
 }
