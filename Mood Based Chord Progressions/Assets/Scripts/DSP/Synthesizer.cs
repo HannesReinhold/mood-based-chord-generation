@@ -54,6 +54,8 @@ public class Synthesizer : MidiDevice
     private FirFilter firFilter = new FirFilter(257);
     private RingModulation ringMod = new RingModulation(48000);
 
+    private Granular granular = new Granular(48000, 48000*5, 20);
+
 
     public override void StartNote(int noteID)
     {
@@ -161,7 +163,7 @@ public class Synthesizer : MidiDevice
 
         chorus.feedback = delayFeedback;
 
-        filter.CalcCoeffs(phaserFreq*22000,0.2f,1,BiquadType.Lowpass);
+        filter.CalcCoeffs(phaserFreq*22000,Mathf.Max(0.1f,phaserFeedback),1,BiquadType.Lowpass);
 
         panner.pan = panning;
 
@@ -182,7 +184,7 @@ public class Synthesizer : MidiDevice
         {
             if (!voices[i].CanPlay()) continue;
 
-            voices[i].RenderBlock(data, numChannels, numActiveVoices);
+            //voices[i].RenderBlock(data, numChannels, numActiveVoices);
         }
 
         
@@ -192,8 +194,6 @@ public class Synthesizer : MidiDevice
         {
             //data[i] = (float)(r.NextDouble()*2-1) * 0.1f;
             //data[i] = dist.ProcesSample(data[i]);
-
-            //data[i] = filter.Process(data[i]);
             /*
             data[i] = (float)r.NextDouble() * 2 - 1;
             if(z1> 48000)
@@ -210,14 +210,14 @@ public class Synthesizer : MidiDevice
             //data[i] = bands[2];
             //data[i + 1] = bands[0] + bands[1] + bands[2];
             // data[i+1] = 0;
-            float a = delay.Process(data[i]);
-            data[i] = firFilter.Process(data[i])-a;
-            data[i + 1] = data[i];
+            //float a = delay.Process(data[i]);
+            //data[i] = firFilter.Process(data[i])-a;
         }
-        ringMod.ProcessBlock(data, numChannels);
-        //chorus.ProcessBlock(data, numChannels);
+        //granular.ProcessBlock(data, numChannels);
+        //ringMod.ProcessBlock(data, numChannels);
+        chorus.ProcessBlock(data, numChannels);
         //haas.ProcessBlock(data, numChannels);
         //panner.ProcessBlock(data, numChannels);
-        
+
     }
 }

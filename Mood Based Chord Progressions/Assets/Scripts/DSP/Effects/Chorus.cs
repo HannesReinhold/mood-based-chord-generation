@@ -33,6 +33,7 @@ public class Chorus
     public Chorus(float sampleRate, int bufferSize, int maxDelays)
     {
         this.maxNumDelays = maxDelays;
+        this.numDelays = maxNumDelays;
         pannings = new float[maxNumDelays];
 
         SetDelayRangeInMs(2,20);
@@ -41,7 +42,8 @@ public class Chorus
         for(int i=0; i<maxDelays; i++)
         {
             delays[i] = new FeedbackDelay(48000, 5000);
-            pannings[i] = (float)i /(Mathf.Max(1,maxDelays-1));
+            pannings[i] = (float)i /(maxDelays-1);
+            Debug.Log(pannings[i]);
         }
         if (maxNumDelays == 1) pannings[0] = 0.5f;
     }
@@ -91,6 +93,7 @@ public class Chorus
 
         }
         */
+
         for(int i=0; i<numDelays; i++)
         {
             delays[i].feedback = feedback;
@@ -112,13 +115,13 @@ public class Chorus
             float sumRight = 0;
             for (int j = 0; j < numDelays; j++)
             {
-                float delayedSample = delays[j].Process(data[i]);
+                float delayedSample = delays[j].Process(data[i]+data[i+1]);
                 sumLeft += delayedSample * (1-pannings[j]);
                 sumRight += delayedSample * (pannings[j]);
             }
 
-            data[i] += sumLeft;
-            data[i + 1] += sumRight;
+            data[i] += sumLeft * 0.25f;
+            data[i + 1] += sumRight * 0.25f;
         }
     }
 }
