@@ -595,7 +595,13 @@ MonoBehaviour:
   phaserStages: 4
   phaserPositiveFeedback: 1
   delayInMs: 12.21
-  delayFeedback: 0.5
+  delayFeedback: 0
+  band: 0
+  attack: 0
+  release: 0
+  upperThreshold: 0
+  lowerThreshold: 0
+  ratio: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

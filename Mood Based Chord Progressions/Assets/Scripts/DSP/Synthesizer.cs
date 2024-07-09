@@ -46,6 +46,8 @@ public class Synthesizer : MidiDevice
     private Compressor comp3 = new Compressor(64);
     private Biquad filter = new Biquad();
 
+    private Chorus chorus = new Chorus(48000, 5000, 8);
+
 
     public override void StartNote(int noteID)
     {
@@ -151,6 +153,8 @@ public class Synthesizer : MidiDevice
         comp2.downwardsRatio = 16;
         comp2.upwardsRatio = 16;
 
+        chorus.feedback = delayFeedback;
+
         filter.CalcCoeffs(phaserFreq*22000,0.2f,1,BiquadType.Lowpass);
 
 
@@ -175,10 +179,10 @@ public class Synthesizer : MidiDevice
         // Process effects
         for (int i=0; i<data.Length; i+=2)
         {
-            data[i] += (float)(r.NextDouble()*2-1) * 0.01f;
-            data[i] = dist.ProcesSample(data[i]);
+            //data[i] += (float)(r.NextDouble()*2-1) * 0.01f;
+            //data[i] = dist.ProcesSample(data[i]);
             
-            data[i] = filter.Process(data[i]);
+            //data[i] = filter.Process(data[i]);
             /*
             data[i] = (float)r.NextDouble() * 2 - 1;
             if(z1> 48000)
@@ -190,12 +194,14 @@ public class Synthesizer : MidiDevice
 
             data[i] *= t ? 0.1f : 1;
             */
-            float[] bands = bandSplitter.Process(data[i]);
-            data[i] = comp1.Process(bands[0]*5)+ comp2.Process(bands[1]*5)*0.9f+ comp3.Process(bands[2]*10)*0.8f;
+            //float[] bands = bandSplitter.Process(data[i]);
+            //data[i] = comp1.Process(bands[0]*5)+ comp2.Process(bands[1]*5)*0.9f+ comp3.Process(bands[2]*10)*0.8f;
             //data[i] = bands[2];
             //data[i + 1] = bands[0] + bands[1] + bands[2];
-            data[i+1] = 0;
+           // data[i+1] = 0;
         }
+
+        chorus.ProcessBlock(data, numChannels);
 
         
     }

@@ -22,7 +22,7 @@ public class SynthVoice
         oscillator1 = new WavetableOscillator(48000);
 
         oscillator1.SetSaw();
-        oscillator1.numVoices = 2;
+        oscillator1.numVoices = 1;
         oscillator1.randomPhase = 1;
         oscillator1.restartPhase = false;
         oscillator1.detune = 40f;

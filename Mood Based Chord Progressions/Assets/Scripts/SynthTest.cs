@@ -47,7 +47,7 @@ public class SynthTest : MonoBehaviour
         arp.device = synth;
         //input.device = arp;
         chordGenerator.device = arp;
-        chordGenerator.octave = 2;
+        chordGenerator.octave = 3;
         chordGenerator.has3rd = false;
         chordGenerator.has5th = false;
 
