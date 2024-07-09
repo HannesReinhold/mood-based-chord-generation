@@ -47,6 +47,7 @@ public class Synthesizer : MidiDevice
     private Biquad filter = new Biquad();
 
     private Chorus chorus = new Chorus(48000, 5000, 8);
+    private Haas haas = new Haas(48000);
 
 
     public override void StartNote(int noteID)
@@ -181,7 +182,7 @@ public class Synthesizer : MidiDevice
         {
             //data[i] += (float)(r.NextDouble()*2-1) * 0.01f;
             //data[i] = dist.ProcesSample(data[i]);
-            
+
             //data[i] = filter.Process(data[i]);
             /*
             data[i] = (float)r.NextDouble() * 2 - 1;
@@ -198,11 +199,11 @@ public class Synthesizer : MidiDevice
             //data[i] = comp1.Process(bands[0]*5)+ comp2.Process(bands[1]*5)*0.9f+ comp3.Process(bands[2]*10)*0.8f;
             //data[i] = bands[2];
             //data[i + 1] = bands[0] + bands[1] + bands[2];
-           // data[i+1] = 0;
+            // data[i+1] = 0;
         }
 
-        chorus.ProcessBlock(data, numChannels);
-
+        //chorus.ProcessBlock(data, numChannels);
+        haas.ProcessBlock(data, numChannels);
         
     }
 }
