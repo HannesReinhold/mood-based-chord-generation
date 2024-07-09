@@ -41,18 +41,22 @@ public class SynthTest : MonoBehaviour
     [Range(-50, 10)] public float lowerThreshold;
     [Range(0, 10)] public float ratio;
 
+    private Biquad oscLowpass = new Biquad();
+
+
 
     // Start is called before the first frame update
     void Start()
     {
-        arp.device = synth;
-        //input.device = arp;
+        //arp.device = synth;
+        
+        input.device = synth;
         chordGenerator.device = arp;
-        chordGenerator.octave = 3;
+        chordGenerator.octave = 5;
         chordGenerator.has3rd = false;
         chordGenerator.has5th = false;
 
-        chordGenerator2.device = synth2;
+        //chordGenerator2.device = synth2;
         chordGenerator2.octave = 5;
         //chordGenerator2.has9th = true;
 
@@ -77,19 +81,30 @@ public class SynthTest : MonoBehaviour
         arp.rate = 2 / 1f;
 
         timer = 60f / bpm * rate;
+
+        oscLowpass.SetCoeffs(BiquadCalculator.CalcCoeffs(100,0.7f,0, BiquadType.Lowpass, 1024));
     }
 
     // Update is called once per frame
     void Update()
     {
-        //input.Update();
+        input.Update();
 
 
         oscilloscope.positionCount = dataCopy.Length / 2;
-        for (int i = 0; i < dataCopy.Length; i += 2)
+        for (int i = 0; i < dataCopy.Length/2; i += 1)
         {
-            oscilloscope.SetPosition(i / 2, new Vector3(Mathf.Lerp(-1, 1, (float)i / dataCopy.Length), dataCopy[i] * 0.25f, 0));
+            //oscilloscope.SetPosition(i, new Vector3(Mathf.Lerp(0, 1, (float)i / (dataCopy.Length/2)), dataCopy[i*2] * 0.25f, 0));
         }
+
+        for(int i=0; i<dataCopy.Length/2; i+=1)
+        {
+            float s1 = oscLowpass.Process(dataCopy[i]) * 5;
+            oscilloscope.SetPosition(i, new Vector3(Mathf.Lerp(0, 1, (float)(i) / (dataCopy.Length / 2)),s1 , 0));
+            
+        }
+
+        oscilloscope.Simplify(0.01f);
 
         synth.phaserFreq = phaserFreq;
         synth.phaserFeedback = phaserFeedback;
