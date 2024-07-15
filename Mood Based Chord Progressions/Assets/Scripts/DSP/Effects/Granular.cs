@@ -7,6 +7,7 @@ public class Granular
     public int bufferSize;
     public float[] buffer;
     private float sampleRate;
+    private float sampleTime;
 
     private int maxNumGrains;
 
@@ -25,11 +26,16 @@ public class Granular
     public float grainSpawnRate = 1;
     private float grainSpawnTimer;
     private float grainSpawnTime;
+    private float[] grainPitches = new float[1] {1};
+
+
+    float[] window = new float[512];
 
 
     public Granular(float sampleRate, int bufferSize, int maxNumGrains)
     {
         this.sampleRate = sampleRate;
+        sampleTime = 1f / sampleRate;
         writePointer = 0;
         this.bufferSize = bufferSize;
         buffer = new float[bufferSize];
@@ -43,26 +49,35 @@ public class Granular
 
         grainSpawnTimer = 0;
 
-        SetGrainSpawnRate(20);
+        SetGrainSpawnRate(200);
+
+        for(int i=0; i<512; i++)
+        {
+            window[i] = Mathf.Sin(Mathf.PI*(float)i/(511));
+        }
+
     }
 
     public void SetGrainSpawnRate(float rate)
     {
-        grainSpawnTime = sampleRate / rate;
+        grainSpawnTime = sampleRate / (rate*2);
     }
 
     private void SpawnGrain()
     {
-        grainPointers[currentGrainID] = random.Next(48000, bufferSize - 48000);
+        //grainPointers[currentGrainID] = random.Next(48000, bufferSize - 48000);
+        grainPointers[currentGrainID] = writePointer + (1+random.Next(200));
+        while (grainPointers[currentGrainID] < 0) grainPointers[currentGrainID] += 200;
+        if (grainPointers[currentGrainID] > bufferSize) grainPointers[currentGrainID] -= bufferSize;
         grainTimes[currentGrainID] = 0;
         updateGrain[currentGrainID] = true;
-        grainPitch[currentGrainID] = 1 + (float)random.NextDouble() * 0.01f;
-        grainPan[currentGrainID] = (float)random.NextDouble();
+        grainPitch[currentGrainID] = grainPitches[random.Next(0, grainPitches.Length)] + (float)random.NextDouble() * 0.005f;
+        //grainPitch[currentGrainID] = grainPitches[random.Next(0, grainPitches.Length)];
+        grainPan[currentGrainID] = (float)random.NextDouble()*0+0.5f;
 
         currentGrainID++;
         if (currentGrainID >= maxNumGrains) currentGrainID = 0;
 
-        Debug.Log("Spawn Grain");
     }
 
     private void StopGrain(int i)
@@ -73,6 +88,9 @@ public class Granular
 
     public void ProcessBlock(float[] data, int numChannels)
     {
+
+        if (grainPitches[0] == 0) return;
+
         for (int j = 0; j < data.Length; j += numChannels)
         {
             float outputLeft = 0;
@@ -91,24 +109,25 @@ public class Granular
             {
                 if (!updateGrain[i]) continue;
 
-                float grainSample = buffer[(int)grainPointers[i]] * Mathf.Sin(grainTimes[i] * Mathf.PI);
+                float grainSample = buffer[(int)grainPointers[i]] * window[(int)(grainTimes[i]*512f)];
                 outputLeft += grainSample * (1-grainPan[i]);
                 outputRight += grainSample * (grainPan[i]);
 
-                grainTimes[i] += 1f / sampleRate * 1f;
-                grainPointers[i] += 1f * grainPitch[i];
+                grainTimes[i] += sampleTime * grainPitch[i]*1f;
+                grainPointers[i] += grainPitch[i];
 
 
                 if ((int)grainPointers[i] >= bufferSize) grainPointers[i] -= bufferSize;
+                //if ((int)grainPointers[i] < 0) grainPointers[i] += bufferSize;
                 if (grainTimes[i] >= 1) StopGrain(i);
             }
 
-            buffer[writePointer++] = data[j];
+            buffer[writePointer++] = data[j]+data[j+1];
             if (writePointer >= bufferSize) writePointer -= bufferSize;
 
 
-            data[j] = outputLeft * 0.25f;
-            data[j + 1] = outputRight * 0.25f;
+            data[j] = outputLeft * 0.125f;
+            data[j + 1] = outputRight * 0.125f;
         }
     }
 }
