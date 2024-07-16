@@ -22,6 +22,8 @@ public class SynthVoice
 
     private int filterUpdateTimer = 0;
 
+    public Parameter freq = new Parameter();
+
     public SynthVoice(int numChannels)
     {
         noteID = -100;
@@ -33,10 +35,10 @@ public class SynthVoice
         oscillator1.restartPhase = false;
         oscillator1.detune = 20f;
 
-        adsr = new ADSR(48000, 0.01f, 0.05f, 1, 3f);
+        adsr = new ADSR(48000, 0.01f, 0.05f, 1, 0.3f);
         canPlay = false;
 
-        adsrLowpass = new ADSR(4480/2f, 1f, 0.2f, 1f, 0.3f);
+        adsrLowpass = new ADSR(4480/1f, 0.01f, 0.2f, 1f, 0.1f);
         lowpass = new Biquad();
         lowpass.type = BiquadType.Lowpass;
         lowpass.CalcCoeffs(22000,0.7f,0,BiquadType.Lowpass);
@@ -92,9 +94,10 @@ public class SynthVoice
             time += 1;
             float adsrValue = adsr.GetValue();
 
+            oscillator1.AddPhase(freq.valueBuffer[sample]);
             float output = oscillator1.RenderSample() * velocity * adsrValue * 0.1f;
 
-            if (filterUpdateTimer >= 20)
+            if (filterUpdateTimer >= 10)
             {
                 float adsrLowValue = adsrLowpass.GetValue();
                 lowpass.CalcCoeffs(MathUtils.NoteToFreq(adsrLowValue*120), 0.7f, 0, BiquadType.Lowpass);

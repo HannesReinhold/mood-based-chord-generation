@@ -57,6 +57,11 @@ public class Synthesizer : MidiDevice
     private Granular granular = new Granular(48000, 48000*5, 20);
 
 
+    private LFO lfo1 = new LFO(48000);
+    public float[] lfoBuffer = new float[1024];
+    
+
+
     public override void StartNote(int noteID)
     {
         PlayNextAvailableVoice(noteID);
@@ -183,9 +188,21 @@ public class Synthesizer : MidiDevice
         firFilter.SetHilbert(phaserFreq*10);
         ringMod.SetFrequency(phaserFeedback * 1000);
 
+        lfo1.SetFrequency(delayFeedback * 20);
+
 
 
         System.Random r = new System.Random();  
+
+        for(int i=0; i<data.Length; i += 2)
+        {
+            float val = lfo1.GetValue();
+
+            for(int j=0; j<voices.Length; j++)
+            {
+                voices[j].freq.valueBuffer[i] = val*10;
+            }
+        }
 
         for (int i=0; i<voices.Length; i++)
         {
