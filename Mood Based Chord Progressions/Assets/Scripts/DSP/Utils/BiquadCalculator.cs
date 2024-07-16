@@ -24,117 +24,119 @@ public static class BiquadCalculator
         float norm;
         float V = System.MathF.Pow(10, System.MathF.Abs(pG) / 20f);
         float K = System.MathF.Tan(System.MathF.PI * f);
-        float kk = K * K;
-        float kq = K / q;
+        float kk = K*K;
+        float kq = K/q;
 
         float a0 = 0, a1 = 0, a2 = 0, b1 = 0, b2 = 0;
 
         switch (type)
         {
             case BiquadType.Lowpass:
-                norm = 1 / (1 + K / q + K * K);
-                a0 = K * K * norm;
+                norm = 1 / (1 + kq + kk);
+                a0 = kk * norm;
                 a1 = 2 * a0;
                 a2 = a0;
-                b1 = 2 * (K * K - 1) * norm;
-                b2 = (1 - K / q + K * K) * norm;
+                b1 = 2 * (kk - 1) * norm;
+                b2 = (1 - kq + kk) * norm;
                 break;
 
             case BiquadType.Highpass:
-                norm = 1 / (1 + K / q + K * K);
+                norm = 1 / (1 + kq + kk);
                 a0 = 1 * norm;
                 a1 = -2 * a0;
                 a2 = a0;
-                b1 = 2 * (K * K - 1) * norm;
-                b2 = (1 - K / q + K * K) * norm;
+                b1 = 2 * (kk - 1) * norm;
+                b2 = (1 - kq + kk) * norm;
                 break;
 
             case BiquadType.Bandpass:
-                norm = 1 / (1 + K / q + K * K);
-                a0 = K / q * norm;
+                norm = 1 / (1 + kq + kk);
+                a0 = kq * norm;
                 a1 = 0;
                 a2 = -a0;
-                b1 = 2 * (K * K - 1) * norm;
-                b2 = (1 - K / q + K * K) * norm;
+                b1 = 2 * (kk - 1) * norm;
+                b2 = (1 - kq + kk) * norm;
                 break;
 
             case BiquadType.Notch:
-                norm = 1 / (1 + K / q + K * K);
-                a0 = (1 + K * K) * norm;
-                a1 = 2 * (K * K - 1) * norm;
+                norm = 1 / (1 + kq + kk);
+                a0 = (1 + kk) * norm;
+                a1 = 2 * (kk - 1) * norm;
                 a2 = a0;
                 b1 = a1;
-                b2 = (1 - K / q + K * K) * norm;
+                b2 = (1 - kq + kk) * norm;
                 break;
 
             case BiquadType.Peak:
                 if (pG >= 0)
                 {    // boost
-                    norm = 1 / (1 + 1 / q * K + K * K);
-                    a0 = (1 + V / q * K + K * K) * norm;
-                    a1 = 2 * (K * K - 1) * norm;
-                    a2 = (1 - V / q * K + K * K) * norm;
+                    float qInv = 1 / q * K;
+                    norm = 1 / (1 + qInv + kk);
+                    a0 = (1 + V * qInv + kk) * norm;
+                    a1 = 2 * (kk - 1) * norm;
+                    a2 = (1 - V * qInv + kk) * norm;
                     b1 = a1;
-                    b2 = (1 - 1 / q * K + K * K) * norm;
+                    b2 = (1 - qInv + kk) * norm;
                 }
                 else
                 {    // cut
-                    norm = 1 / (1 + V / q * K + K * K);
-                    a0 = (1 + 1 / q * K + K * K) * norm;
-                    a1 = 2 * (K * K - 1) * norm;
-                    a2 = (1 - 1 / q * K + K * K) * norm;
+                    float qInv = 1 / q * K;
+                    norm = 1 / (1 + V * qInv + kk);
+                    a0 = (1 + qInv + kk) * norm;
+                    a1 = 2 * (kk - 1) * norm;
+                    a2 = (1 - qInv + kk) * norm;
                     b1 = a1;
-                    b2 = (1 - V / q * K + K * K) * norm;
+                    b2 = (1 - V * qInv + kk) * norm;
                 }
                 break;
             case BiquadType.Lowshelf:
                 if (pG >= 0)
                 {    // boost
                     float sqrt2V = System.MathF.Sqrt(2 * V);
-                    norm = 1 / (1 + sqrt2 * K + K * K);
-                    a0 = (1 + sqrt2V * K + V * K * K) * norm;
-                    a1 = 2 * (V * K * K - 1) * norm;
-                    a2 = (1 - sqrt2V * K + V * K * K) * norm;
-                    b1 = 2 * (K * K - 1) * norm;
-                    b2 = (1 - sqrt2 * K + K * K) * norm;
+                    norm = 1 / (1 + sqrt2 * K + kk);
+                    a0 = (1 + sqrt2V * K + V * kk) * norm;
+                    a1 = 2 * (V * kk - 1) * norm;
+                    a2 = (1 - sqrt2V * K + V * kk) * norm;
+                    b1 = 2 * (kk - 1) * norm;
+                    b2 = (1 - sqrt2 * K + kk) * norm;
                 }
                 else
                 {    // cut
                     float sqrt2V = System.MathF.Sqrt(2 * V);
-                    norm = 1 / (1 + sqrt2V * K + V * K * K);
-                    a0 = (1 + sqrt2 * K + K * K) * norm;
-                    a1 = 2 * (K * K - 1) * norm;
-                    a2 = (1 - sqrt2 * K + K * K) * norm;
-                    b1 = 2 * (V * K * K - 1) * norm;
-                    b2 = (1 - sqrt2V * K + V * K * K) * norm;
+                    norm = 1 / (1 + sqrt2V * K + V * kk);
+                    a0 = (1 + sqrt2 * K + kk) * norm;
+                    a1 = 2 * (kk - 1) * norm;
+                    a2 = (1 - sqrt2 * K + kk) * norm;
+                    b1 = 2 * (V * kk - 1) * norm;
+                    b2 = (1 - sqrt2V * K + V * kk) * norm;
                 }
                 break;
             case BiquadType.Highshelf:
                 if (pG >= 0)
                 {    // boost
                     float sqrt2V = System.MathF.Sqrt(2 * V);
-                    norm = 1 / (1 + sqrt2 * K + K * K);
-                    a0 = (V + sqrt2V * K + K * K) * norm;
-                    a1 = 2 * (K * K - V) * norm;
-                    a2 = (V - sqrt2V * K + K * K) * norm;
-                    b1 = 2 * (K * K - 1) * norm;
-                    b2 = (1 - sqrt2 * K + K * K) * norm;
+                    norm = 1 / (1 + sqrt2 * K + kk);
+                    a0 = (V + sqrt2V * K + kk) * norm;
+                    a1 = 2 * (kk - V) * norm;
+                    a2 = (V - sqrt2V * K + kk) * norm;
+                    b1 = 2 * (kk - 1) * norm;
+                    b2 = (1 - sqrt2 * K + kk) * norm;
                 }
                 else
                 {    // cut
                     float sqrt2V = System.MathF.Sqrt(2 * V);
-                    norm = 1 / (V + sqrt2V * K + K * K);
-                    a0 = (1 + sqrt2 * K + K * K) * norm;
-                    a1 = 2 * (K * K - 1) * norm;
-                    a2 = (1 - sqrt2 * K + K * K) * norm;
-                    b1 = 2 * (K * K - V) * norm;
-                    b2 = (V - sqrt2V * K + K * K) * norm;
+                    norm = 1 / (V + sqrt2V * K + kk);
+                    a0 = (1 + sqrt2 * K + kk) * norm;
+                    a1 = 2 * (kk - 1) * norm;
+                    a2 = (1 - sqrt2 * K + kk) * norm;
+                    b1 = 2 * (kk - V) * norm;
+                    b2 = (V - sqrt2V * K + kk) * norm;
                 }
                 break;
             case BiquadType.Allpass:
-                norm = 1 / (1 + K / q + K * K);
-                a0 = (1 - K / q + K * K) * norm;
-                a1 = 2 * (K * K - 1) * norm;
+                norm = 1 / (1 + kq + kk);
+                a0 = (1 - kq + kk) * norm;
+                a1 = 2 * (kk - 1) * norm;
                 a2 = 1;
                 b1 = a1;
                 b2 = a0;
