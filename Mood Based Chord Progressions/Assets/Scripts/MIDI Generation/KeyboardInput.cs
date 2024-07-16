@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class KeyboardInput
 {
-    private int octave = 0;
+    private int octave = 4;
 
     public MidiDevice device;
 

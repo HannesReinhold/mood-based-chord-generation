@@ -6,7 +6,7 @@ public class Synthesizer : MidiDevice
 {
 
     public int numChannels = 2;
-    public int maxVoices = 16;
+    public int maxVoices = 32;
 
     public float masterGain = 1;
     public float panning = 0.5f;
@@ -77,21 +77,34 @@ public class Synthesizer : MidiDevice
     {
         for(int i=0; i < voices.Length; i++)
         {
-            if (!voices[i].CanPlay()) { voices[i].StartNote(noteID+octave*12, 1); numActiveVoices++;  return; }
+            if (!voices[i].CanPlay() && voices[i].noteID==-100) { Debug.Log("Play "+i); voices[i].StartNote(noteID+octave*12, 1); numActiveVoices++;  return; }
         }
+        //Debug.Log(numActiveVoices);
     }
 
     public void StopVoice(int noteID)
     {
+        float oldest = 0;
+        int oldestID = 0;
         for (int i = 0; i < voices.Length; i++)
         {
-            if (voices[i].noteID == noteID && voices[i].CanPlay())
+            if (voices[i].noteID == noteID && voices[i].IsPlaying())
             {
-                voices[i].StopNote(noteID+octave*12, 1);
-                numActiveVoices--;
-                return;
+                if (voices[i].time > oldest)
+                {
+                    oldest = voices[i].time;
+                    oldestID = i;
+                }
+                
             }
         
+        }
+
+        if (voices[oldestID].noteID == noteID && voices[oldestID].IsPlaying())
+        {
+            voices[oldestID].StopNote(noteID + octave * 12, 1);
+            numActiveVoices--;
+            Debug.Log("Stop "+oldestID);
         }
     }
 
@@ -184,7 +197,7 @@ public class Synthesizer : MidiDevice
         {
             if (!voices[i].CanPlay()) continue;
 
-            //voices[i].RenderBlock(data, numChannels, numActiveVoices);
+            voices[i].RenderBlock(data, numChannels, numActiveVoices);
         }
 
         
@@ -215,7 +228,7 @@ public class Synthesizer : MidiDevice
         }
         //granular.ProcessBlock(data, numChannels);
         //ringMod.ProcessBlock(data, numChannels);
-        chorus.ProcessBlock(data, numChannels);
+        //chorus.ProcessBlock(data, numChannels);
         //haas.ProcessBlock(data, numChannels);
         //panner.ProcessBlock(data, numChannels);
 

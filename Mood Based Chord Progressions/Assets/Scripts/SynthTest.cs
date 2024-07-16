@@ -45,12 +45,12 @@ public class SynthTest : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        arp.device = synth;
+        input.device = synth;
         //input.device = arp;
         chordGenerator.device = arp;
-        chordGenerator.octave = 5;
-        chordGenerator.has3rd = false;
-        chordGenerator.has5th = false;
+        chordGenerator.octave = 4;
+        chordGenerator.has3rd = true;
+        chordGenerator.has5th = true;
 
         chordGenerator2.device = synth2;
         chordGenerator2.octave = 5;
@@ -74,7 +74,7 @@ public class SynthTest : MonoBehaviour
         }
 
         arp.bpm = 140;
-        arp.rate = 2 / 1f;
+        arp.rate = 1 / 4f;
 
         timer = 60f / bpm * rate;
     }
@@ -82,7 +82,7 @@ public class SynthTest : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //input.Update();
+        input.Update();
 
 
         oscilloscope.positionCount = dataCopy.Length / 2;
@@ -128,14 +128,14 @@ public class SynthTest : MonoBehaviour
                 chord = chords[chordIndex];
                 chordIndex++;
                 if (chordIndex >= chords.Count) chordIndex = 0;
-                chordGenerator.StopAllNotes();
-                chordGenerator.StartNote(chord);
+                //chordGenerator.StopAllNotes();
+                //chordGenerator.StartNote(chord);
 
-                chordGenerator2.StopAllNotes();
-                chordGenerator2.StartNote(chord);
+                //chordGenerator2.StopAllNotes();
+                //chordGenerator2.StartNote(chord);
             }
 
-            arp.UpdateArp();
+            //arp.UpdateArp();
         }
 
 
