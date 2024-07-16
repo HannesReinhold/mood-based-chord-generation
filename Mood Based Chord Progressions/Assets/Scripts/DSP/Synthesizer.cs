@@ -38,27 +38,15 @@ public class Synthesizer : MidiDevice
     public SynthVoice[] voices;
 
     // Effects
-    private HardClip dist = new HardClip();
-    private Phaser phaser = new Phaser();
-    private FeedbackDelay delay = new FeedbackDelay(48000, 48000);
-    private BandSplitter bandSplitter = new BandSplitter(3, new float[] {88 , 2000});
-    private Compressor comp1 = new Compressor(64);
-    private Compressor comp2 = new Compressor(64);
-    private Compressor comp3 = new Compressor(64);
     private Biquad filter = new Biquad();
-
     private Chorus chorus = new Chorus(48000, 5000, 8);
     private Haas haas = new Haas(48000);
     private Panner panner = new Panner();
-
-    private FirFilter firFilter = new FirFilter(257);
     private RingModulation ringMod = new RingModulation(48000);
-
     private Granular granular = new Granular(48000, 48000*5, 20);
 
 
     private LFO lfo1 = new LFO(48000);
-    public float[] lfoBuffer = new float[1024];
     
 
 
@@ -82,9 +70,8 @@ public class Synthesizer : MidiDevice
     {
         for(int i=0; i < voices.Length; i++)
         {
-            if (!voices[i].CanPlay() && voices[i].noteID==-100) { Debug.Log("Play "+i); voices[i].StartNote(noteID+octave*12, 1); numActiveVoices++;  return; }
+            if (!voices[i].CanPlay() && voices[i].noteID==-100) { voices[i].StartNote(noteID+octave*12, 1); numActiveVoices++;  return; }
         }
-        //Debug.Log(numActiveVoices);
     }
 
     public void StopVoice(int noteID)
@@ -109,7 +96,6 @@ public class Synthesizer : MidiDevice
         {
             voices[oldestID].StopNote(noteID + octave * 12, 1);
             numActiveVoices--;
-            Debug.Log("Stop "+oldestID);
         }
     }
 
@@ -146,49 +132,11 @@ public class Synthesizer : MidiDevice
     bool t = false;
     public void ProcessBlock(float[] data, int numChannels)
     {
-        dist.SetDrive(100);
-        dist.SetDcOffset(dcOffset);
-
-        phaser.fc = phaserFreq;
-        phaser.feedback = phaserFeedback;
-        phaser.numStages = phaserStages;
-        phaser.positiveFeedback = phaserPositiveFeedback;
-
-        delay.SetDelayInSamples(128);
-        delay.feedback = 0;
-        delay.positiveFeedback = phaserPositiveFeedback;
-
-        comp1.SetAttack(1);
-        comp1.SetRelease(100);
-        comp1.upperThreshold = -8.5f;
-        comp1.lowerThreshold = -10.0f;
-        comp1.downwardsRatio = 16;
-        comp1.upwardsRatio = 16;
-
-        comp2.SetAttack(1);
-        comp2.SetRelease(100);
-        comp2.upperThreshold = -8.0f;
-        comp2.lowerThreshold = -10.2f;
-        comp2.downwardsRatio = 16;
-        comp2.upwardsRatio = 16;
-
-        comp3.SetAttack(1);
-        comp3.SetRelease(50);
-        comp3.upperThreshold = -6.5f;
-        comp3.lowerThreshold = -8.0f;
-        comp2.downwardsRatio = 16;
-        comp2.upwardsRatio = 16;
-
         chorus.feedback = delayFeedback;
-
         filter.CalcCoeffs(phaserFreq*22000,Mathf.Max(0.1f,phaserFeedback),1,BiquadType.Lowpass);
-
         panner.pan = panning;
-
-        firFilter.SetHilbert(phaserFreq*10);
         ringMod.SetFrequency(phaserFeedback * 1000);
-
-        lfo1.SetFrequency(delayFeedback * 20);
+        lfo1.SetFrequency(delayFeedback * 200);
 
 
 
@@ -204,11 +152,6 @@ public class Synthesizer : MidiDevice
             }
         }
 
-        for (int i=0; i<voices.Length; i++)
-        {
-            //voices[i].lowpass.SetCoeffs(cutoffFrequency, Q, 0);
-        }
-
         // Get samples from generators per voice
         for(int i=0; i < voices.Length; i++)
         {
@@ -222,32 +165,13 @@ public class Synthesizer : MidiDevice
         // Process effects
         for (int i=0; i<data.Length; i+=2)
         {
-            //data[i] = (float)(r.NextDouble()*2-1) * 0.1f;
-            //data[i] = dist.ProcesSample(data[i]);
-            /*
-            data[i] = (float)r.NextDouble() * 2 - 1;
-            if(z1> 48000)
-            {
-                z1 = 0;
-                t = !t;
-            }
-            z1++;
 
-            data[i] *= t ? 0.1f : 1;
-            */
-            //float[] bands = bandSplitter.Process(data[i]);
-            //data[i] = comp1.Process(bands[0]*5)+ comp2.Process(bands[1]*5)*0.9f+ comp3.Process(bands[2]*10)*0.8f;
-            //data[i] = bands[2];
-            //data[i + 1] = bands[0] + bands[1] + bands[2];
-            // data[i+1] = 0;
-            //float a = delay.Process(data[i]);
-            //data[i] = firFilter.Process(data[i])-a;
         }
-        //granular.ProcessBlock(data, numChannels);
-        //ringMod.ProcessBlock(data, numChannels);
-        //chorus.ProcessBlock(data, numChannels);
-        //haas.ProcessBlock(data, numChannels);
-        //panner.ProcessBlock(data, numChannels);
+        granular.ProcessBlock(data, numChannels);
+        ringMod.ProcessBlock(data, numChannels);
+        chorus.ProcessBlock(data, numChannels);
+        haas.ProcessBlock(data, numChannels);
+        panner.ProcessBlock(data, numChannels);
 
     }
 }
