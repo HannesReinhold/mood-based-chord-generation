@@ -49,29 +49,30 @@ public class Granular
 
         grainSpawnTimer = 0;
 
-        SetGrainSpawnRate(200);
+        SetGrainSpawnRate(50);
 
         for(int i=0; i<512; i++)
         {
-            window[i] = Mathf.Sin(Mathf.PI*(float)i/(511));
+            //window[i] = Mathf.Sin(Mathf.PI*(float)i/(511));
+            window[i] = Mathf.Lerp(1,0,(float)i/511);
         }
 
     }
 
     public void SetGrainSpawnRate(float rate)
     {
-        grainSpawnTime = sampleRate / (rate*2);
+        grainSpawnTime = sampleRate / (rate);
     }
 
     private void SpawnGrain()
     {
         //grainPointers[currentGrainID] = random.Next(48000, bufferSize - 48000);
-        grainPointers[currentGrainID] = writePointer + (1+random.Next(200));
-        while (grainPointers[currentGrainID] < 0) grainPointers[currentGrainID] += 200;
+        grainPointers[currentGrainID] = writePointer - (1+random.Next(20000));
+        while (grainPointers[currentGrainID] < 0) grainPointers[currentGrainID] += bufferSize;
         if (grainPointers[currentGrainID] > bufferSize) grainPointers[currentGrainID] -= bufferSize;
         grainTimes[currentGrainID] = 0;
         updateGrain[currentGrainID] = true;
-        grainPitch[currentGrainID] = grainPitches[random.Next(0, grainPitches.Length)] + (float)random.NextDouble() * 0.005f;
+        grainPitch[currentGrainID] = grainPitches[random.Next(0, grainPitches.Length)] + (float)random.NextDouble() * 0.01f;
         //grainPitch[currentGrainID] = grainPitches[random.Next(0, grainPitches.Length)];
         grainPan[currentGrainID] = (float)random.NextDouble()*0+0.5f;
 
@@ -113,7 +114,7 @@ public class Granular
                 outputLeft += grainSample * (1-grainPan[i]);
                 outputRight += grainSample * (grainPan[i]);
 
-                grainTimes[i] += sampleTime * grainPitch[i]*1f;
+                grainTimes[i] += sampleTime * grainPitch[i];
                 grainPointers[i] += grainPitch[i];
 
 
@@ -126,8 +127,8 @@ public class Granular
             if (writePointer >= bufferSize) writePointer -= bufferSize;
 
 
-            data[j] = outputLeft * 0.125f;
-            data[j + 1] = outputRight * 0.125f;
+            data[j] = outputLeft;
+            data[j + 1] = outputRight;
         }
     }
 }
