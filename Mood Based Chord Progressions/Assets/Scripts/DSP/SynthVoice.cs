@@ -20,21 +20,23 @@ public class SynthVoice
 
     public float time = 0;
 
+    private int filterUpdateTimer = 0;
+
     public SynthVoice(int numChannels)
     {
         noteID = -100;
         oscillator1 = new WavetableOscillator(48000);
 
         oscillator1.SetSaw();
-        oscillator1.numVoices = 1;
+        oscillator1.numVoices = 4;
         oscillator1.randomPhase = 1;
         oscillator1.restartPhase = false;
-        oscillator1.detune = 40f;
+        oscillator1.detune = 20f;
 
         adsr = new ADSR(48000, 0.01f, 0.05f, 1, 3f);
         canPlay = false;
 
-        adsrLowpass = new ADSR(44800, 0.01f, 0.2f, 1f, 0.3f);
+        adsrLowpass = new ADSR(4480/2f, 1f, 0.2f, 1f, 0.3f);
         lowpass = new Biquad();
         lowpass.type = BiquadType.Lowpass;
         lowpass.CalcCoeffs(22000,0.7f,0,BiquadType.Lowpass);
@@ -55,6 +57,8 @@ public class SynthVoice
 
         //Debug.Log("Play Note "+midiNote +" at frequency "+ MathUtils.NoteToFreq(midiNote));
         time = 0;
+
+        filterUpdateTimer = 10;
     }
 
     public void StopNote(int midiNote, float vel)
@@ -87,12 +91,17 @@ public class SynthVoice
             if (adsr.forceStop) { canPlay = false; noteID = -100; continue; }
             time += 1;
             float adsrValue = adsr.GetValue();
-            //float adsrLowValue = adsrLowpass.GetValue();
 
             float output = oscillator1.RenderSample() * velocity * adsrValue * 0.1f;
 
-            //lowpass.CalcCoeffs(adsrLowValue*2200, 0.7f, 0, BiquadType.Lowpass);
-            //output = lowpass.Process(output);
+            if (filterUpdateTimer >= 20)
+            {
+                float adsrLowValue = adsrLowpass.GetValue();
+                lowpass.CalcCoeffs(MathUtils.NoteToFreq(adsrLowValue*120), 0.7f, 0, BiquadType.Lowpass);
+                filterUpdateTimer = 0;
+            }
+            filterUpdateTimer++;
+            output = lowpass.Process(output);
             for (int channel=0; channel<numChannels; channel++)
             {
                 data[sample + channel] += output;
