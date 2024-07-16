@@ -22,6 +22,9 @@ public class Chorus
 
     float[] pannings;
 
+    private float[] lfo;
+    private int lfoSize = 512;
+
 
 
     public void SetDelayRangeInMs(float min, float max)
@@ -46,6 +49,13 @@ public class Chorus
             Debug.Log(pannings[i]);
         }
         if (maxNumDelays == 1) pannings[0] = 0.5f;
+
+        lfo = new float[lfoSize];
+
+        for(int i=0; i<lfoSize; i++)
+        {
+            lfo[i] = Mathf.Sin(Mathf.PI*i/(float)lfoSize)*0.5f+0.5f;
+        }
     }
 
 
@@ -106,9 +116,13 @@ public class Chorus
             {
                 for (int j = 0; j < numDelays; j++)
                 {
-                    delays[j].SetDelayInMs(Mathf.Lerp(minDelay, maxDelay, Mathf.Sin(modPhase + Mathf.Lerp(0, Mathf.PI * 2, (float)j / numDelays)) * 0.5f + 0.5f));
+                    //delays[j].SetDelayInMs(Mathf.Lerp(minDelay, maxDelay, Mathf.Sin(modPhase + Mathf.Lerp(0, Mathf.PI * 2, (float)j / numDelays)) * 0.5f + 0.5f));
+                    int index=(int)((modPhase+(float)j/numDelays)*lfoSize);
+                    if(index >= lfoSize) index -= lfoSize;
+                    delays[j].SetDelayInMs(minDelay + lfo[index] * (maxDelay-minDelay));
                 }
-                modPhase += Mathf.PI * speed / 4800f;
+                modPhase += speed / 4800f;
+                if (modPhase >= 1) modPhase = 0;
             }
 
             float sumLeft = 0;
