@@ -167,9 +167,9 @@ public class Synthesizer : MidiDevice
         {
 
         }
-        granular.ProcessBlock(data, numChannels);
-        ringMod.ProcessBlock(data, numChannels);
-        chorus.ProcessBlock(data, numChannels);
+        //granular.ProcessBlock(data, numChannels);
+        //ringMod.ProcessBlock(data, numChannels);
+        //chorus.ProcessBlock(data, numChannels);
         haas.ProcessBlock(data, numChannels);
         panner.ProcessBlock(data, numChannels);
 

@@ -30,12 +30,12 @@ public class SynthVoice
         oscillator1 = new WavetableOscillator(48000);
 
         oscillator1.SetSaw();
-        oscillator1.numVoices = 4;
+        oscillator1.numVoices = 9;
         oscillator1.randomPhase = 1;
         oscillator1.restartPhase = false;
         oscillator1.detune = 20f;
 
-        adsr = new ADSR(48000, 0.01f, 0.05f, 1, 0.3f);
+        adsr = new ADSR(48000, 0.01f, 0.5f, 0.8f, 0.01f);
         canPlay = false;
 
         adsrLowpass = new ADSR(4480/1f, 0.01f, 0.2f, 1f, 0.1f);
