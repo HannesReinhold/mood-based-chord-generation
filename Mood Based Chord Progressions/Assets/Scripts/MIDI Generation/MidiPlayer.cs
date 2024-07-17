@@ -89,6 +89,19 @@ public class MidiPlayer
         deltaTimer += timerInc;
     }
 
+    public List<Vector3> noteNameSeqTonoteIDSeq(List<string> seq)
+    {
+        List<Vector3> notes = new List<Vector3>();
+
+        for(int i=0; i<seq.Count; i++)
+        {
+            string[] seperateValues = seq[i].Split(",");
+            notes.Add(new Vector3((float)MathUtils.noteIDFromName(seperateValues[0]), float.Parse(seperateValues[1]), float.Parse(seperateValues[2])));
+        }
+
+        return notes;
+    }
+
     public List<MidiSignal> SequenceToMidiFile(List<Vector3> notes)
     {
         double lastNote = 0;
