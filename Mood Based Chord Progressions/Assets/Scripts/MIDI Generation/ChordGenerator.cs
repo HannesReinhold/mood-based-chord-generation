@@ -101,7 +101,7 @@ public class ChordGenerator : MidiDevice
 
     private void StopChord(List<int> notes)
     {
-        device.StopAllNotes();
+        //device.StopAllNotes();
 
         for (int i = 0; i < notes.Count; i++)
         {
@@ -112,7 +112,7 @@ public class ChordGenerator : MidiDevice
     public override void StartNote(int noteID)
     {
         //if(device.GetType() == )
-        Debug.Log("Play Chord " + noteID);
+        //Debug.Log("Play Chord " + noteID);
         StartChord(BuildChord(key, scaleMode, (Chord)(noteID%7), Mathf.FloorToInt((noteID) / 7)+octave, has1st, has3rd, has5th, has7th, has9th, has11th));
     }
 

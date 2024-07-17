@@ -12,7 +12,6 @@ public class FirstOrderAllpass
         float output = -fc * input + z0 + fc * z1;
         z0 = input;
         z1 = output;
-        return z0;
+        return output;
     }
-
 }

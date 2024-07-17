@@ -173,7 +173,7 @@ public class WavetableOscillator
         else if (frequency > 340) wavetableID = 4;
         else if (frequency > 171) wavetableID = 3;
         else if (frequency > 85) wavetableID = 2;
-        else wavetableID = 1;
+        else wavetableID = 0;
     }
 
 
@@ -181,20 +181,19 @@ public class WavetableOscillator
     {
         float output = 0;
 
-        for (int i=0; i< oversampling; i++)
-        {
+        
             for(int j=0; j<numVoices; j++)
             {
                 phase[j] += increment[j];
-                if (Mathf.FloorToInt(phase[j]) < 0) phase[j] += wavetableSize;
+                if ((int)(phase[j]) < 0) phase[j] += wavetableSize;
                 if (phase[j] >= wavetableSize) phase[j] -= wavetableSize;
-                output += antializedWaveTable[wavetableID,Mathf.FloorToInt(phase[j])];
+                output += antializedWaveTable[wavetableID,(int)(phase[j])];
                 
                 
             }
-        }
+        
 
-        output /= oversampling;
+        //output /= oversampling;
         output *= gain;
 
         return output;

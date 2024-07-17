@@ -22,6 +22,8 @@ public class ADSR
 
     private float stopTime;
 
+    private float releaseMult = 0;
+
 
     public ADSR(float sampleRate, float a, float d, float s, float r)
     {
@@ -60,12 +62,20 @@ public class ADSR
 
         if (!canPlay)
         {
-            currentValue = Mathf.Lerp(lastValue, 0, (time - stopTime) / release);
+            //currentValue = Mathf.Lerp(lastValue, 0, (time - stopTime) / release);
+            currentValue = (1 - ((time - stopTime) / release)) * lastValue;
             return currentValue;
         }
         else lastValue = currentValue;
-        if (time < attack) currentValue =  Mathf.Lerp(0, 1 , time/attack);
-        else if(time >= attack && canPlay) currentValue = Mathf.Lerp(1, sustain , (time - attack) / decay);
+        if (time < attack) {
+            //currentValue = Mathf.Lerp(0, 1, time / attack);
+            currentValue = time / attack;
+        }
+        else if (time >= attack && canPlay) {
+            //currentValue = Mathf.Lerp(1, sustain, (time - attack) / decay);
+            float t = ((time - attack) / decay);
+            currentValue = 1*(1-t)+sustain*t;
+        }
         
         return currentValue;
     }

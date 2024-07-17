@@ -585,11 +585,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 1837517941}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1db8c459745127b469a88080539a31b5, type: 3}
+  m_Script: {fileID: 11500000, guid: e71f6458311423c4f8344009c658daad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   oscilloscope: {fileID: 174229487}
-  chords: 00000000060000000500000003000000
+  chords: 00000000010000000200000003000000
+  phaserFreq: 0.437
+  phaserFeedback: 0.113
+  phaserStages: 4
+  phaserPositiveFeedback: 1
+  delayInMs: 12.21
+  delayFeedback: 0
+  band: 0
+  attack: 0
+  release: 0
+  upperThreshold: 0
+  lowerThreshold: 0
+  ratio: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

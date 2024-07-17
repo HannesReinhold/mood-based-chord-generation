@@ -26,6 +26,8 @@ public class Arpeggiator : MidiDevice
 
     public int[] noteLayout;
 
+    private int lastNote = 0;
+
     private void Start()
     {
     }
@@ -41,7 +43,7 @@ public class Arpeggiator : MidiDevice
         if (timer > 60f / bpm * rate)
         {
             timer = 0;
-            device.StopAllNotes();
+            device.StopNote(lastNote);
 
             if (mode == ArpeggiatorMode.Ascending)
             {
@@ -80,9 +82,15 @@ public class Arpeggiator : MidiDevice
             if (noteIndex >= notes.Count && mode != ArpeggiatorMode.Layout) return;
             if (notes.Count == 0) return;
             if (mode == ArpeggiatorMode.Layout)
+            {
                 device.StartNote(notes[Mathf.Min(noteLayout[noteIndex], notes.Count - 1)]);
+                lastNote = notes[Mathf.Min(noteLayout[noteIndex], notes.Count - 1)];
+            }
             else
+            {
                 device.StartNote(notes[noteIndex]);
+                lastNote = notes[noteIndex];
+            }
         }
 
     }
