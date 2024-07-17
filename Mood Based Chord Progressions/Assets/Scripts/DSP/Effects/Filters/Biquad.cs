@@ -9,20 +9,25 @@ public class Biquad
 
     private float lastF = 0;
 
-    public float sampleRate;
+    private float sampleRate = 48000;
 
-    public BiquadCalculator.BiquadType type;
+    public BiquadType type;
 
-    public void SetCoeffs(float Fc, float Q, float peakGain, BiquadCalculator.BiquadType type)
+    public void CalcCoeffs(float Fc, float Q, float peakGain, BiquadType type)
     {
         if(Mathf.Abs(Fc-lastF) < 3f)
         {
-            return;
+            //return;
         }
 
         lastF = Fc;
 
         float[] coeffs = BiquadCalculator.CalcCoeffs(Fc, Q, peakGain, type, sampleRate);
+        SetCoeffs(coeffs);
+    }
+
+    public void SetCoeffs(float[] coeffs)
+    {
         a0 = coeffs[0];
         a1 = coeffs[1];
         a2 = coeffs[2];
@@ -32,7 +37,7 @@ public class Biquad
 
     public void SetCoeffs(float Fc, float Q, float peakGain)
     {
-        SetCoeffs(Fc, Q, peakGain, type);
+        CalcCoeffs(Fc, Q, peakGain, type);
     }
 
     public float Process(float input)

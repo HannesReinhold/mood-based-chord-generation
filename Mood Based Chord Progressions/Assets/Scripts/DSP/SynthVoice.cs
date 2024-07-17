@@ -5,58 +5,70 @@ using UnityEngine;
 public class SynthVoice
 {
 
-    private WavetableOscillator oscillator1;
-    private WavetableOscillator oscillator2;
+    public WavetableOscillator oscillator1;
     private ADSR adsr;
     private ADSR adsrLowpass;
-    private Biquad lowpass;
+    public Biquad lowpass;
 
 
     private bool canPlay;
+    private bool isPlaying;
 
     private float velocity;
 
     public int noteID;
 
+    public float time = 0;
+
+    private int filterUpdateTimer = 0;
+
+    public Parameter freq = new Parameter();
+
     public SynthVoice(int numChannels)
     {
+        noteID = -100;
         oscillator1 = new WavetableOscillator(48000);
-        oscillator2 = new WavetableOscillator(48000);
 
-        oscillator1.SetSine();
-        oscillator2.SetSine();
+        oscillator1.SetSaw();
+        oscillator1.numVoices = 4;
+        oscillator1.randomPhase = 1;
+        oscillator1.restartPhase = false;
+        oscillator1.detune = 20f;
 
-        oscillator2.gain = 0.5f;
-        adsr = new ADSR(48000, 0.01f, 0.7f, 1, 0.1f);
+        adsr = new ADSR(48000, 0.01f, 0.05f, 1, 0.3f);
         canPlay = false;
 
-        adsrLowpass = new ADSR(44800, 0.02f, 0.5f, 1, 0.1f);
+        adsrLowpass = new ADSR(4480/1f, 0.01f, 0.2f, 1f, 0.1f);
         lowpass = new Biquad();
-        lowpass.type = BiquadCalculator.BiquadType.LOWPASS;
+        lowpass.type = BiquadType.Lowpass;
+        lowpass.CalcCoeffs(22000,0.7f,0,BiquadType.Lowpass);
     }
 
     public void StartNote(int midiNote, float vel)
     {
-        oscillator1.SetFrequency(MathUtils.NoteToFreq(midiNote-36));
+        oscillator1.SetFrequency(MathUtils.NoteToFreq(midiNote));
         oscillator1.Reset();
 
-        oscillator2.SetFrequency(MathUtils.NoteToFreq(midiNote));
-        oscillator2.Reset();
 
         adsr.Start();
         adsrLowpass.Start();
         canPlay = true;
+        isPlaying = true;
         velocity = vel;
         noteID = midiNote;
 
-        Debug.Log("Play Note "+midiNote +" at frequency "+ MathUtils.NoteToFreq(midiNote));
+        //Debug.Log("Play Note "+midiNote +" at frequency "+ MathUtils.NoteToFreq(midiNote));
+        time = 0;
+
+        filterUpdateTimer = 10;
     }
 
     public void StopNote(int midiNote, float vel)
     {
-        adsr.Stop();
+        time = 0;
         adsr.Stop();
         velocity = vel;
+        isPlaying = false;
     }
 
     public bool CanPlay()
@@ -64,26 +76,34 @@ public class SynthVoice
         return canPlay;
     }
 
+    public bool IsPlaying()
+    {
+        return isPlaying;
+    }
+
 
     public void RenderBlock(float[] data, int numChannels, int numActiveVoices)
     {
         if(adsr.forceStop) canPlay = false;
 
+        
+
         for(int sample=0; sample<data.Length; sample+= numChannels)
         {
-            if (adsr.forceStop) continue;
+            if (adsr.forceStop) { canPlay = false; noteID = -100; continue; }
+            time += 1;
             float adsrValue = adsr.GetValue();
-            float adsrLowValue = adsrLowpass.GetValue();
 
-            float mod = oscillator2.RenderSample() * velocity * adsrValue * 0.1f;
-            oscillator1.AddPhase(mod*1000f);
-
+            oscillator1.AddPhase(freq.valueBuffer[sample]);
             float output = oscillator1.RenderSample() * velocity * adsrValue * 0.1f;
 
-            
-
-
-            lowpass.SetCoeffs(Mathf.Max(10, Mathf.Min(MathUtils.NoteToFreq(adsrLowValue*172f),22000)),1,0);
+            if (filterUpdateTimer >= 10)
+            {
+                float adsrLowValue = adsrLowpass.GetValue();
+                lowpass.CalcCoeffs(MathUtils.NoteToFreq(adsrLowValue*120), 0.7f, 0, BiquadType.Lowpass);
+                filterUpdateTimer = 0;
+            }
+            filterUpdateTimer++;
             output = lowpass.Process(output);
             for (int channel=0; channel<numChannels; channel++)
             {

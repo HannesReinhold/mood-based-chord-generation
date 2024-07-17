@@ -134,11 +134,13 @@ public class WavetableOscillator
     {
         if (restartPhase) return;
 
-        startPhase = UnityEngine.Random.Range(0, wavetableSize * randomPhase);
+        System.Random rand = new System.Random();
+
+        startPhase = (float)rand.NextDouble() * wavetableSize * randomPhase;
 
         for (int i=0; i<numVoices; i++)
         {
-            phase[i] = (startPhase + UnityEngine.Random.Range(0, wavetableSize * randomPhase))% wavetableSize;
+            phase[i] = (startPhase + (float)rand.NextDouble() * wavetableSize * randomPhase)% wavetableSize;
         }
         
     }
@@ -160,8 +162,6 @@ public class WavetableOscillator
             float detunedFreq = MathUtils.CentToFreq(midiNote+ Mathf.Lerp(-detune, detune, (float)i / (numVoices - 1)));
 
             increment[i] = wavetableSize * detunedFreq / sampleRate / oversampling;
-
-            Debug.Log(detunedFreq + " "+f);
         }
 
         if(numVoices == 1) increment[0] = wavetableSize * (frequency) / sampleRate / oversampling;
@@ -173,7 +173,7 @@ public class WavetableOscillator
         else if (frequency > 340) wavetableID = 4;
         else if (frequency > 171) wavetableID = 3;
         else if (frequency > 85) wavetableID = 2;
-        else wavetableID = 1;
+        else wavetableID = 0;
     }
 
 
@@ -181,20 +181,19 @@ public class WavetableOscillator
     {
         float output = 0;
 
-        for (int i=0; i< oversampling; i++)
-        {
+        
             for(int j=0; j<numVoices; j++)
             {
                 phase[j] += increment[j];
-                if (Mathf.FloorToInt(phase[j]) < 0) phase[j] += wavetableSize;
+                if ((int)(phase[j]) < 0) phase[j] += wavetableSize;
                 if (phase[j] >= wavetableSize) phase[j] -= wavetableSize;
-                output += antializedWaveTable[wavetableID,Mathf.FloorToInt(phase[j])];
+                output += antializedWaveTable[wavetableID,(int)(phase[j])];
                 
                 
             }
-        }
+        
 
-        output /= oversampling;
+        //output /= oversampling;
         output *= gain;
 
         return output;
