@@ -10,6 +10,7 @@ public class SynthTest : MonoBehaviour
     private ChordGenerator chordGenerator = new ChordGenerator();
     private ChordGenerator chordGenerator2 = new ChordGenerator();
     private Arpeggiator arp = new Arpeggiator();
+    private MidiPlayer midiPlayer = new MidiPlayer(48000);
 
     public LineRenderer oscilloscope;
     private float[] dataCopy;
@@ -45,7 +46,8 @@ public class SynthTest : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        input.device = synth;
+        midiPlayer.device = synth;
+        midiPlayer.midiFile = midiPlayer.midiFile = midiPlayer.SequenceToMidiFile(new List<Vector3>() { new Vector3(60, 0, 200), new Vector3(64, 400, 200), new Vector3(67, 800, 200), new Vector3(-100,1000,200) });
         //input.device = arp;
         chordGenerator.device = arp;
         chordGenerator.octave = 4;
@@ -77,6 +79,13 @@ public class SynthTest : MonoBehaviour
         arp.rate = 1 / 4f;
 
         timer = 60f / bpm * rate;
+
+
+        for(int i=0; i<midiPlayer.midiFile.Count; i++)
+        {
+            Debug.Log((midiPlayer.midiFile[i].midiEvent == MidiEvent.NoteOn ? "Play " : "Stop ") + "note " + midiPlayer.midiFile[i].noteIndex + " at time " + midiPlayer.midiFile[i].absoluteTime+", "+midiPlayer.midiFile[i].timeToNextEvent);
+            
+        }
     }
 
     // Update is called once per frame
@@ -136,6 +145,7 @@ public class SynthTest : MonoBehaviour
             }
 
             //arp.UpdateArp();
+            midiPlayer.Update();
         }
 
 
