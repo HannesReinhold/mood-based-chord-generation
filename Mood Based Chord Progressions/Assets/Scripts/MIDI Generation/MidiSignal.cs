@@ -8,6 +8,7 @@ public class MidiSignal
     public int noteIndex;
     public double timeToNextEvent;
     public double absoluteTime;
+    public int channel;
 
     public MidiSignal(MidiEvent ev, int noteID){
         midiEvent = ev;
@@ -20,6 +21,15 @@ public class MidiSignal
         noteIndex = noteID;
         timeToNextEvent = timeToNext;
         absoluteTime = time;
+    }
+
+    public MidiSignal(MidiEvent ev, int noteID, double timeToNext, double time, int ch)
+    {
+        midiEvent = ev;
+        noteIndex = noteID;
+        timeToNextEvent = timeToNext;
+        absoluteTime = time;
+        channel = ch;
     }
 }
 

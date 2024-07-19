@@ -82,6 +82,8 @@ public class Synthesizer : MidiDevice
         {
             if (voices[i].noteID == noteID && voices[i].IsPlaying())
             {
+                voices[i].StopNote(noteID + octave * 12, 1);
+                numActiveVoices--;
                 if (voices[i].time > oldest)
                 {
                     oldest = voices[i].time;
@@ -94,8 +96,8 @@ public class Synthesizer : MidiDevice
 
         if (voices[oldestID].noteID == noteID && voices[oldestID].IsPlaying())
         {
-            voices[oldestID].StopNote(noteID + octave * 12, 1);
-            numActiveVoices--;
+           // voices[oldestID].StopNote(noteID + octave * 12, 1);
+            //numActiveVoices--;
         }
     }
 

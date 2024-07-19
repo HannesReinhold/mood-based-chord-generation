@@ -69,19 +69,7 @@ public class SynthTest : MonoBehaviour
         */
         //List<MidiSignal> midiFile = MidiParser.ParseMidi(File.ReadAllBytes(Application.dataPath + "/Ressources/MidiTest.mid"));
         MidiFile file = new MidiFile(File.ReadAllBytes(Application.dataPath + "/Ressources/Never-Gonna-Give-You-Up-3.mid"));
-        List<MidiSignal> midiFile = new List<MidiSignal>();
-        for (int i = 0; i < file.Tracks[0].MidiEvents.Count; i++)
-        {
-            MidiParser.MidiEvent ev = file.Tracks[0].MidiEvents[i];
-            MidiEvent midiEvent;
-            if (ev.MidiEventType == MidiEventType.NoteOff) midiEvent = MidiEvent.NoteOff;
-            else if (ev.MidiEventType == MidiEventType.NoteOn) midiEvent = MidiEvent.NoteOn;
-            else continue;
-            
-            midiFile.Add(new MidiSignal(midiEvent, ev.Note, (double)ev.DeltaTime, (double)ev.Time));
-        }
-
-        midiPlayer.midiFile = midiFile;
+        midiPlayer.SetMidiFile(file, 1);
 
        // midiPlayer.midiFile = midiFile;
 

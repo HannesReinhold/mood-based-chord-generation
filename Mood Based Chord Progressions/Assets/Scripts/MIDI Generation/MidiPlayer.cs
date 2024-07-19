@@ -92,6 +92,29 @@ public class MidiPlayer
         deltaTimer += timerInc;
     }
 
+    public void SetMidiFile(MidiParser.MidiFile file, int index)
+    {
+        List<MidiSignal> parsedMidi = new List<MidiSignal>();
+        int lastTime = 0;
+        for(int j=0; j<file.Tracks[0].MidiEvents.Count; j++)
+        {
+            
+
+            MidiParser.MidiEvent ev = file.Tracks[0].MidiEvents[j];
+            if (!(ev.Channel==3|| ev.Channel == 4|| ev.Channel == 16)) continue;
+            int dt = ev.Time - lastTime;
+            lastTime = ev.Time;
+            MidiEvent midiEvent;
+            if (ev.MidiEventType == MidiParser.MidiEventType.NoteOff) midiEvent = MidiEvent.NoteOff;
+            else if (ev.MidiEventType == MidiParser.MidiEventType.NoteOn) midiEvent = MidiEvent.NoteOn;
+            else continue;
+
+            parsedMidi.Add(new MidiSignal(midiEvent, ev.Note, (double)dt*1.5, (double)ev.Time*1.5, ev.Channel));
+        }
+
+        midiFile = parsedMidi;
+    }
+
     public List<Vector3> noteNameSeqTonoteIDSeq(List<string> seq)
     {
         List<Vector3> notes = new List<Vector3>();

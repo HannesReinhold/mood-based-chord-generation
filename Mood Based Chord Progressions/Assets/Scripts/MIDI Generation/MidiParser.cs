@@ -105,6 +105,7 @@ namespace MidiParser
             var track = new MidiTrack { Index = index };
             var time = 0;
             var status = (byte)0;
+            int lastTime = 0;
 
             while (position < trackEnd)
             {
@@ -138,8 +139,12 @@ namespace MidiParser
                         eventType = (byte)MidiEventType.NoteOff;
                     }
 
-                    track.MidiEvents.Add(
-                        new MidiEvent { Time = time, DeltaTime = deltaTime, Type = eventType, Arg1 = channel, Arg2 = data1, Arg3 = data2 });
+
+
+                        int dt = time - lastTime;
+                        lastTime = time;
+                        track.MidiEvents.Add(new MidiEvent { Time = time, DeltaTime = dt, Type = eventType, Arg1 = channel, Arg2 = data1, Arg3 = data2 });
+
                 }
                 else
                 {
