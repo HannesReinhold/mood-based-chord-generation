@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Windows;
+using MidiParser;
 
 public class SynthTest : MonoBehaviour
 {
@@ -47,7 +49,7 @@ public class SynthTest : MonoBehaviour
     void Start()
     {
         midiPlayer.device = synth;
-        midiPlayer.midiFile = midiPlayer.midiFile = midiPlayer.SequenceToMidiFile(midiPlayer.noteNameSeqTonoteIDSeq(new List<string>() { "g6,0,200", "d#6,200,200", "c6,400,200", "d#6,600,200", "f6,800,200", "d#6,1000,200", "c6,1200,200", "d#6,1400,200" ,
+        /*midiPlayer.midiFile = midiPlayer.midiFile = midiPlayer.SequenceToMidiFile(midiPlayer.noteNameSeqTonoteIDSeq(new List<string>() { "g6,0,200", "d#6,200,200", "c6,400,200", "d#6,600,200", "f6,800,200", "d#6,1000,200", "c6,1200,200", "d#6,1400,200" ,
                                                                                                                                          "g6,1600,200", "d#6,1800,200", "c6,2000,200", "d#6,2200,200", "f6,2400,200", "d#6,2600,200", "c6,2800,200", "d#6,3000,200",
                                                                                                                                          "g6,3200,200", "d#6,3400,200", "d6,3600,200", "d#6,3800,200", "a#6,4000,200", "d#6,4200,200", "d6,4400,200", "d#6,4600,200",
                                                                                                                                          "g6,4800,200", "d#6,5000,200", "d6,5200,200", "d#6,5400,200", "a#6,5600,200", "d#6,5800,200", "d6,6000,200", "d#6,6200,200",
@@ -64,6 +66,25 @@ public class SynthTest : MonoBehaviour
                                                                                                                                          "d5,6400,400","d5,6800,400","d5,7200,400","d5,7600,400","d5,8000,400","d5,8400,400","d5,8800,400","d5,9200,400",
                                                                                                                                          "f5,9600,400","f5,10000,400","f5,10400,400","f5,10800,400","f5,11200,400","f5,11600,400","f5,12000,400","f5,12400,400",
                                                                                                                                          "c5,9600,400","c5,10000,400","c5,10400,400","c5,10800,400","c5,11200,400","c5,11600,400","c5,12000,400","c5,12400,400"}));
+        */
+        //List<MidiSignal> midiFile = MidiParser.ParseMidi(File.ReadAllBytes(Application.dataPath + "/Ressources/MidiTest.mid"));
+        MidiFile file = new MidiFile(File.ReadAllBytes(Application.dataPath + "/Ressources/Never-Gonna-Give-You-Up-3.mid"));
+        List<MidiSignal> midiFile = new List<MidiSignal>();
+        for (int i = 0; i < file.Tracks[0].MidiEvents.Count; i++)
+        {
+            MidiParser.MidiEvent ev = file.Tracks[0].MidiEvents[i];
+            MidiEvent midiEvent;
+            if (ev.MidiEventType == MidiEventType.NoteOff) midiEvent = MidiEvent.NoteOff;
+            else if (ev.MidiEventType == MidiEventType.NoteOn) midiEvent = MidiEvent.NoteOn;
+            else continue;
+            
+            midiFile.Add(new MidiSignal(midiEvent, ev.Note, (double)ev.DeltaTime, (double)ev.Time));
+        }
+
+        midiPlayer.midiFile = midiFile;
+
+       // midiPlayer.midiFile = midiFile;
+
         //input.device = arp;
         chordGenerator.device = arp;
         chordGenerator.octave = 4;

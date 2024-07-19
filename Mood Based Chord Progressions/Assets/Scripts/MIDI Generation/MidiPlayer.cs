@@ -64,7 +64,10 @@ public class MidiPlayer
 
             timeToNextEvent = midiFile[midiIndex].timeToNextEvent;
             if (midiFile[midiIndex].midiEvent == MidiEvent.NoteOn)
+            {
                 device.StartNote(midiFile[midiIndex].noteIndex);
+                Debug.Log("Play");
+            }
             else
                 device.StopNote(midiFile[midiIndex].noteIndex);
 
