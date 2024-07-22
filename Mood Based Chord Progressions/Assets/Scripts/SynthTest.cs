@@ -32,7 +32,7 @@ public class SynthTest : MonoBehaviour
     [Range(0, 1)] public float panning = 0.5f;
     [Range(0,1)]public float phaserFreq = 0;
     [Range(0, 10)] public float phaserFeedback = 0;
-    [Range(1, 32)] public int phaserStages = 4;
+    [Range(1, 32)] public int phaserStages = 5;
     public bool phaserPositiveFeedback = true;
     [Range(0, 20)] public float delayInMs = 0;
     [Range(0, 1)] public float delayFeedback = 0.5f;
@@ -49,7 +49,7 @@ public class SynthTest : MonoBehaviour
     void Start()
     {
         midiPlayer.device = synth;
-        /*midiPlayer.midiFile = midiPlayer.midiFile = midiPlayer.SequenceToMidiFile(midiPlayer.noteNameSeqTonoteIDSeq(new List<string>() { "g6,0,200", "d#6,200,200", "c6,400,200", "d#6,600,200", "f6,800,200", "d#6,1000,200", "c6,1200,200", "d#6,1400,200" ,
+        midiPlayer.midiFile = midiPlayer.midiFile = midiPlayer.SequenceToMidiFile(midiPlayer.noteNameSeqTonoteIDSeq(new List<string>() { "g6,0,200", "d#6,200,200", "c6,400,200", "d#6,600,200", "f6,800,200", "d#6,1000,200", "c6,1200,200", "d#6,1400,200" ,
                                                                                                                                          "g6,1600,200", "d#6,1800,200", "c6,2000,200", "d#6,2200,200", "f6,2400,200", "d#6,2600,200", "c6,2800,200", "d#6,3000,200",
                                                                                                                                          "g6,3200,200", "d#6,3400,200", "d6,3600,200", "d#6,3800,200", "a#6,4000,200", "d#6,4200,200", "d6,4400,200", "d#6,4600,200",
                                                                                                                                          "g6,4800,200", "d#6,5000,200", "d6,5200,200", "d#6,5400,200", "a#6,5600,200", "d#6,5800,200", "d6,6000,200", "d#6,6200,200",
@@ -66,10 +66,10 @@ public class SynthTest : MonoBehaviour
                                                                                                                                          "d5,6400,400","d5,6800,400","d5,7200,400","d5,7600,400","d5,8000,400","d5,8400,400","d5,8800,400","d5,9200,400",
                                                                                                                                          "f5,9600,400","f5,10000,400","f5,10400,400","f5,10800,400","f5,11200,400","f5,11600,400","f5,12000,400","f5,12400,400",
                                                                                                                                          "c5,9600,400","c5,10000,400","c5,10400,400","c5,10800,400","c5,11200,400","c5,11600,400","c5,12000,400","c5,12400,400"}));
-        */
+        
         //List<MidiSignal> midiFile = MidiParser.ParseMidi(File.ReadAllBytes(Application.dataPath + "/Ressources/MidiTest.mid"));
-        MidiFile file = new MidiFile(File.ReadAllBytes(Application.dataPath + "/Ressources/Never-Gonna-Give-You-Up-3.mid"));
-        midiPlayer.SetMidiFile(file, 1);
+        //MidiFile file = new MidiFile(File.ReadAllBytes(Application.dataPath + "/Ressources/Never-Gonna-Give-You-Up-3.mid"));
+        //midiPlayer.SetMidiFile(file, 1);
 
        // midiPlayer.midiFile = midiFile;
 
@@ -108,7 +108,7 @@ public class SynthTest : MonoBehaviour
 
         for(int i=0; i<midiPlayer.midiFile.Count; i++)
         {
-            Debug.Log((midiPlayer.midiFile[i].midiEvent == MidiEvent.NoteOn ? "Play " : "Stop ") + "note " + midiPlayer.midiFile[i].noteIndex + " at time " + midiPlayer.midiFile[i].absoluteTime+", "+midiPlayer.midiFile[i].timeToNextEvent);
+            //Debug.Log((midiPlayer.midiFile[i].midiEvent == MidiEvent.NoteOn ? "Play " : "Stop ") + "note " + midiPlayer.midiFile[i].noteIndex + " at time " + midiPlayer.midiFile[i].absoluteTime+", "+midiPlayer.midiFile[i].timeToNextEvent);
             
         }
     }
@@ -117,6 +117,7 @@ public class SynthTest : MonoBehaviour
     void Update()
     {
         input.Update();
+        arp.rate = phaserFreq;
 
 
         oscilloscope.positionCount = dataCopy.Length / 2;
@@ -179,5 +180,7 @@ public class SynthTest : MonoBehaviour
         //synth2.ProcessBlock(data,channels);
 
         dataCopy = data;
+
+        Debug.Log(data.Length);
     }
 }

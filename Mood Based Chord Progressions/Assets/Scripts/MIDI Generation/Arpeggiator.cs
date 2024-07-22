@@ -28,6 +28,9 @@ public class Arpeggiator : MidiDevice
 
     private int lastNote = 0;
 
+    private int offsetTimer = 0;
+    
+
     private void Start()
     {
     }
@@ -40,10 +43,12 @@ public class Arpeggiator : MidiDevice
     public void UpdateArp()
     {
         timer += 1f / 48000f;
+        offsetTimer++;
+        if (offsetTimer >= 1024) offsetTimer = 0;
         if (timer > 60f / bpm * rate)
         {
             timer = 0;
-            device.StopNote(lastNote);
+            device.StopNote(lastNote,0);
 
             if (mode == ArpeggiatorMode.Ascending)
             {
@@ -83,30 +88,30 @@ public class Arpeggiator : MidiDevice
             if (notes.Count == 0) return;
             if (mode == ArpeggiatorMode.Layout)
             {
-                device.StartNote(notes[Mathf.Min(noteLayout[noteIndex], notes.Count - 1)]);
+                device.StartNote(notes[Mathf.Min(noteLayout[noteIndex], notes.Count - 1)],offsetTimer);
                 lastNote = notes[Mathf.Min(noteLayout[noteIndex], notes.Count - 1)];
             }
             else
             {
-                device.StartNote(notes[noteIndex]);
+                device.StartNote(notes[noteIndex],offsetTimer);
                 lastNote = notes[noteIndex];
             }
         }
 
     }
 
-    public override void StartNote(int noteID)
+    public override void StartNote(int noteID, int startOffset)
     {
         if (notes.Contains(noteID)) return;
         notes.Sort();
         notes.Add(noteID);
     }
 
-    public override void StopNote(int noteID)
+    public override void StopNote(int noteID, int stopOffset)
     {
         notes.Remove(noteID);
         notes.Sort();
-        device.StopNote(noteID);
+        device.StopNote(noteID,stopOffset);
     }
 
     public override void StopAllNotes()

@@ -50,14 +50,14 @@ public class Synthesizer : MidiDevice
     
 
 
-    public override void StartNote(int noteID)
+    public override void StartNote(int noteID, int startOffset)
     {
-        PlayNextAvailableVoice(noteID);
+        PlayNextAvailableVoice(noteID, startOffset);
     }
 
-    public override void StopNote(int noteID)
+    public override void StopNote(int noteID, int stopOffset)
     {
-        StopVoice(noteID);
+        StopVoice(noteID, stopOffset);
     }
 
     public override void StopAllNotes()
@@ -65,16 +65,15 @@ public class Synthesizer : MidiDevice
         StopAllVoices();
     }
 
-
-    public void PlayNextAvailableVoice(int noteID)
+    public void PlayNextAvailableVoice(int noteID, int startOffset)
     {
         for(int i=0; i < voices.Length; i++)
         {
-            if (!voices[i].CanPlay() && voices[i].noteID==-100) { voices[i].StartNote(noteID+octave*12, 1); numActiveVoices++;  return; }
+            if (!voices[i].CanPlay() && voices[i].noteID==-100) { voices[i].StartNote(noteID+octave*12, 1, startOffset); numActiveVoices++;  return; }
         }
     }
 
-    public void StopVoice(int noteID)
+    public void StopVoice(int noteID, int stopOffset)
     {
         float oldest = 0;
         int oldestID = 0;
@@ -172,8 +171,8 @@ public class Synthesizer : MidiDevice
         //granular.ProcessBlock(data, numChannels);
         //ringMod.ProcessBlock(data, numChannels);
         //chorus.ProcessBlock(data, numChannels);
-        haas.ProcessBlock(data, numChannels);
-        panner.ProcessBlock(data, numChannels);
+        //haas.ProcessBlock(data, numChannels);
+        //panner.ProcessBlock(data, numChannels);
 
     }
 }

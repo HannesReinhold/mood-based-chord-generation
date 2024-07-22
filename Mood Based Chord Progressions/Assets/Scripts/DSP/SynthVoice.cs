@@ -24,28 +24,34 @@ public class SynthVoice
 
     public Parameter freq = new Parameter();
 
+    public int startTimer=0;
+    public int startTime=0;
+
     public SynthVoice(int numChannels)
     {
         noteID = -100;
         oscillator1 = new WavetableOscillator(48000);
 
         oscillator1.SetSaw();
-        oscillator1.numVoices = 9;
+        oscillator1.numVoices = 1;
         oscillator1.randomPhase = 1;
         oscillator1.restartPhase = false;
         oscillator1.detune = 20f;
 
-        adsr = new ADSR(48000, 0.01f, 0.5f, 0.8f, 0.01f);
+        adsr = new ADSR(48000, 0.001f, 0.5f, 0.8f, 0.2f);
         canPlay = false;
 
-        adsrLowpass = new ADSR(4480/1f, 0.01f, 0.2f, 1f, 0.1f);
+        adsrLowpass = new ADSR(4480/1f, 0.001f, 0.4f, 0.5f, 0.5f);
         lowpass = new Biquad();
         lowpass.type = BiquadType.Lowpass;
         lowpass.CalcCoeffs(22000,0.7f,0,BiquadType.Lowpass);
     }
 
-    public void StartNote(int midiNote, float vel)
+    public void StartNote(int midiNote, float vel, int startTime)
     {
+        this.startTime = startTime;
+        startTimer = 0;
+
         oscillator1.SetFrequency(MathUtils.NoteToFreq(midiNote));
         oscillator1.Reset();
 
@@ -90,6 +96,10 @@ public class SynthVoice
 
         for(int sample=0; sample<data.Length; sample+= numChannels)
         {
+            startTimer++;
+            if (startTimer < startTime) continue;
+            
+
             if (adsr.forceStop) { canPlay = false; noteID = -100; continue; }
             time += 1;
             float adsrValue = adsr.GetValue();

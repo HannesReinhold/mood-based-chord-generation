@@ -19,6 +19,9 @@ public class MidiPlayer
 
     private bool isPlaying = false;
 
+    private int discreteTimer=0;
+    private int timeOffset;
+
     
 
 
@@ -65,11 +68,11 @@ public class MidiPlayer
             timeToNextEvent = midiFile[midiIndex].timeToNextEvent;
             if (midiFile[midiIndex].midiEvent == MidiEvent.NoteOn)
             {
-                device.StartNote(midiFile[midiIndex].noteIndex);
-                Debug.Log("Play");
+                device.StartNote(midiFile[midiIndex].noteIndex,discreteTimer);
+                //Debug.Log("Play");
             }
             else
-                device.StopNote(midiFile[midiIndex].noteIndex);
+                device.StopNote(midiFile[midiIndex].noteIndex,discreteTimer);
 
             midiIndex++;
 
@@ -77,16 +80,19 @@ public class MidiPlayer
             {
                 timeToNextEvent = midiFile[midiIndex].timeToNextEvent;
                 if (midiFile[midiIndex].midiEvent == MidiEvent.NoteOn)
-                    device.StartNote(midiFile[midiIndex].noteIndex);
+                    device.StartNote(midiFile[midiIndex].noteIndex,discreteTimer);
                 else
-                    device.StopNote(midiFile[midiIndex].noteIndex);
+                    device.StopNote(midiFile[midiIndex].noteIndex,0);
 
                 midiIndex++;
             }
 
             deltaTimer = 0;
-        }
 
+            
+        }
+        discreteTimer++;
+        if (discreteTimer >= 1024) discreteTimer = 0;
 
         timer += timerInc;
         deltaTimer += timerInc;
@@ -95,21 +101,21 @@ public class MidiPlayer
     public void SetMidiFile(MidiParser.MidiFile file, int index)
     {
         List<MidiSignal> parsedMidi = new List<MidiSignal>();
-        int lastTime = 0;
+        double lastTime = 0;
         for(int j=0; j<file.Tracks[0].MidiEvents.Count; j++)
         {
             
 
             MidiParser.MidiEvent ev = file.Tracks[0].MidiEvents[j];
-            if (!(ev.Channel==3|| ev.Channel == 4|| ev.Channel == 16)) continue;
-            int dt = ev.Time - lastTime;
-            lastTime = ev.Time;
+            if (!(ev.Channel==3|| ev.Channel == 4|| ev.Channel == 16 || ev.Channel == 9)) continue;
+            double dt = (double)ev.Time*1.5 - lastTime;
+            lastTime = (double)ev.Time*1.5;
             MidiEvent midiEvent;
             if (ev.MidiEventType == MidiParser.MidiEventType.NoteOff) midiEvent = MidiEvent.NoteOff;
             else if (ev.MidiEventType == MidiParser.MidiEventType.NoteOn) midiEvent = MidiEvent.NoteOn;
             else continue;
 
-            parsedMidi.Add(new MidiSignal(midiEvent, ev.Note, (double)dt*1.5, (double)ev.Time*1.5, ev.Channel));
+            parsedMidi.Add(new MidiSignal(midiEvent, ev.Note, (double)dt, (double)ev.Time, ev.Channel));
         }
 
         midiFile = parsedMidi;
