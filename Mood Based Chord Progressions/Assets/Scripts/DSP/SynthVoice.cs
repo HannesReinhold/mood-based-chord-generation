@@ -52,7 +52,7 @@ public class SynthVoice
         this.startTime = startTime;
         startTimer = 0;
 
-        oscillator1.SetFrequency(MathUtils.NoteToFreq(midiNote));
+        oscillator1.SetFrequency(MathUtils.NoteToFreq(midiNote-5));
         oscillator1.Reset();
 
 

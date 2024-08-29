@@ -165,6 +165,7 @@ public class SynthTest : MonoBehaviour
         
         synth.ProcessBlock(data, channels);
         //synth2.ProcessBlock(data,channels);
+
         spatializer.ProcessBlock(data, channels);
 
         dataCopy = data;

@@ -57,27 +57,29 @@ public class Spatializer
         for (int i = 0; i < data.Length; i += numChannels)
         {
 
-            data[i] = lowpassLeft.ProcessSample(delayLeft.Process(data[i]), iidLeft)*ildLeft * attenuation;
-            data[i + 1] = lowpassRight.ProcessSample(delayRight.Process(data[i+1]), iidRight) * ildRight * attenuation;
+            float mono = data[i] + data[i + 1];
+            data[i] = lowpassLeft.ProcessSample(delayLeft.Process(mono), iidLeft)*ildLeft * attenuation;
+            data[i + 1] = lowpassRight.ProcessSample(delayRight.Process(mono), iidRight) * ildRight * attenuation;
         }
     }
 
     private void UpdateSpatializer()
     {
-        itdLeft = (1 - (Vector3.Dot(new Vector3(-1,0,0), sourceDir)+1)*0.5f) * 1;
-        itdRight = (1 - (Vector3.Dot(new Vector3(1, 0, 0), sourceDir) + 1) * 0.5f) * 1;
+        itdLeft = Mathf.Max(0.025f,(1 - (Vector3.Dot(new Vector3(-1,0,0), sourceDir)+1)*0.5f) * 0.7f);
+        itdRight = Mathf.Max(0.025f,(1 - (Vector3.Dot(new Vector3(1, 0, 0), sourceDir) + 1) * 0.5f) * 0.7f);
 
         delayLeft.SetDelayInMs(itdLeft);
         delayRight.SetDelayInMs(itdRight);
 
-        float ildFront = Vector3.Dot(new Vector3(0,0,1), sourceDir)*0.25f;
+        float ildFront = (Vector3.Dot(new Vector3(0,0,1), sourceDir)+0.5f)*0.25f;
+        float ildTop = (Vector3.Dot(new Vector3(0, 1, 0), sourceDir)+0.5f) * 0.25f;
         ildLeft = Mathf.Lerp(0.2f,1, (Vector3.Dot(new Vector3(-1, 0, 0), sourceDir) + 1) * 0.5f + ildFront);
         ildRight = Mathf.Lerp(0.2f, 1, (Vector3.Dot(new Vector3(1, 0, 0), sourceDir) + 1) * 0.5f + ildFront);
 
-        iidLeft = Mathf.Min(Mathf.Max(ildLeft+ildFront*0.25f,0),1);
-        iidRight = Mathf.Min(Mathf.Max(ildRight + ildFront * 0.25f, 0), 1);
+        iidLeft = Mathf.Min(Mathf.Max(ildLeft+ildFront*0.25f + ildTop * 0.25f, 0),1);
+        iidRight = Mathf.Min(Mathf.Max(ildRight + ildFront * 0.25f + ildTop * 0.25f, 0), 1);
 
-        attenuation = 0.1f / Mathf.Max(0.1f, Mathf.Pow(distance,0.8f)*0.25f);
+        attenuation = 0.1f / Mathf.Max(0.1f, Mathf.Pow(distance,0.95f)*0.45f);
 
         Debug.Log("ITD: "+itdLeft+" "+itdRight + ", ILD: "+ildLeft+" "+ildRight+", IID: "+iidLeft+" "+iidRight);
     }

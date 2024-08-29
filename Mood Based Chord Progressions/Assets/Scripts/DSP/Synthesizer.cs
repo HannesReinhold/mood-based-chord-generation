@@ -154,5 +154,8 @@ public class Synthesizer : MidiDevice
 
         }
 
+        granular.ProcessBlock(data, numChannels);
+        chorus.ProcessBlock(data, numChannels);
+
     }
 }

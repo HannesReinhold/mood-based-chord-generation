@@ -39,7 +39,7 @@ public class FeedbackDelay
 
     public void SetDelayInHz(float freq)
     {
-        delayInSamples = freq * 0.001f * sampleRate;
+        delayInSamples = 1+ freq * 0.001f * sampleRate;
     }
 
 
