@@ -67,8 +67,8 @@ public class SynthTest : MonoBehaviour
                                                                                                                                          "f5,9600,400","f5,10000,400","f5,10400,400","f5,10800,400","f5,11200,400","f5,11600,400","f5,12000,400","f5,12400,400",
                                                                                                                                          "c5,9600,400","c5,10000,400","c5,10400,400","c5,10800,400","c5,11200,400","c5,11600,400","c5,12000,400","c5,12400,400"}));
         
-        MidiFile file = new MidiFile(File.ReadAllBytes(Application.dataPath + "/Ressources/Never-Gonna-Give-You-Up-3.mid"));
-        midiPlayer.SetMidiFile(file, 1);
+        //MidiFile file = new MidiFile(File.ReadAllBytes(Application.dataPath + "/Ressources/Never-Gonna-Give-You-Up-3.mid"));
+        //midiPlayer.SetMidiFile(file, 1);
 
         //input.device = arp;
         chordGenerator.device = arp;
