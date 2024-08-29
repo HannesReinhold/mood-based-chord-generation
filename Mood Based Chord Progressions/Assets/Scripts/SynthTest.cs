@@ -67,11 +67,8 @@ public class SynthTest : MonoBehaviour
                                                                                                                                          "f5,9600,400","f5,10000,400","f5,10400,400","f5,10800,400","f5,11200,400","f5,11600,400","f5,12000,400","f5,12400,400",
                                                                                                                                          "c5,9600,400","c5,10000,400","c5,10400,400","c5,10800,400","c5,11200,400","c5,11600,400","c5,12000,400","c5,12400,400"}));
         
-        //List<MidiSignal> midiFile = MidiParser.ParseMidi(File.ReadAllBytes(Application.dataPath + "/Ressources/MidiTest.mid"));
-        //MidiFile file = new MidiFile(File.ReadAllBytes(Application.dataPath + "/Ressources/Never-Gonna-Give-You-Up-3.mid"));
-        //midiPlayer.SetMidiFile(file, 1);
-
-       // midiPlayer.midiFile = midiFile;
+        MidiFile file = new MidiFile(File.ReadAllBytes(Application.dataPath + "/Ressources/Never-Gonna-Give-You-Up-3.mid"));
+        midiPlayer.SetMidiFile(file, 1);
 
         //input.device = arp;
         chordGenerator.device = arp;
@@ -89,11 +86,6 @@ public class SynthTest : MonoBehaviour
         synth.PrepareToPlay();
         synth2.PrepareToPlay();
 
-        synth.attack = attack;
-        synth2.release = release;
-        synth2.lowerThreshold = lowerThreshold;
-        synth2.upperThreshold = upperThreshold;
-        synth2.ratio = ratio;
 
         for(int i=0; i<synth2.maxVoices; i++)
         {
@@ -138,17 +130,6 @@ public class SynthTest : MonoBehaviour
         synth.phaserFeedback = phaserFeedback;
         synth.phaserStages = phaserStages;
         synth.phaserPositiveFeedback = phaserPositiveFeedback;
-
-        synth.delayInMs = delayInMs;
-        synth.delayFeedback = delayFeedback;
-
-        synth.band = band;
-
-        synth.attack = attack;
-        synth.release = release;
-        synth.lowerThreshold = lowerThreshold;
-        synth.upperThreshold = upperThreshold;
-        synth.ratio = ratio;
         synth.panning = panning;
     }
 
