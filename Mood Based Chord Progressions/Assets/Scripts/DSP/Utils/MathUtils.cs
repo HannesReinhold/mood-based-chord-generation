@@ -36,5 +36,44 @@ public static class MathUtils
         return Mathf.Pow(10, x / 10f);
     }
 
+    public static int noteIDFromName(string name)
+    {
+        bool sharp = name.Substring(1,1).Equals("#");
+        string note = name.Substring(0,1) + (sharp ? "#" : "");
+
+        int octave = 0;
+        if(sharp) octave =int.Parse(name.Substring(2, 1));
+        else octave = int.Parse(name.Substring(1, 1));
+        switch (note.ToLower())
+        {
+            case "a":
+                return 12 + octave * 12;
+            case "a#":
+                return 13 + octave * 12;
+            case "b":
+                return 14 + octave * 12;
+            case "c":
+                return 3 + octave * 12;
+            case "c#":
+                return 4 + octave * 12;
+            case "d":
+                return 5 + octave * 12;
+            case "d#":
+                return 6 + octave * 12;
+            case "e":
+                return 7 + octave * 12;
+            case "f":
+                return 8 + octave * 12;
+            case "f#":
+                return 9 + octave * 12;
+            case "g":
+                return 10 + octave * 12;
+            case "g#":
+                return 11 + octave * 12;
+            default:
+                return 0;
+        }
+    }
+
 
 }

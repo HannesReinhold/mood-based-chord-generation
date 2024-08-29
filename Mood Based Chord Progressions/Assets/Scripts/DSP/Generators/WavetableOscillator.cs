@@ -16,7 +16,7 @@ public class WavetableOscillator
     public int numVoices = 1;
     public float detune = 0;
     public float randomPhase = 0;
-    public bool restartPhase = true;
+    public bool restartPhase = false;
     
 
 
@@ -158,8 +158,9 @@ public class WavetableOscillator
         frequency = f;
         for(int i=0; i < numVoices; i++)
         {
-            float midiNote = MathUtils.FreqToCent(f);
-            float detunedFreq = MathUtils.CentToFreq(midiNote+ Mathf.Lerp(-detune, detune, (float)i / (numVoices - 1)));
+            //float midiNote = MathUtils.FreqToCent(f);
+            //float detunedFreq = MathUtils.CentToFreq(midiNote+ Mathf.Lerp(-detune, detune, (float)i / (numVoices - 1)));
+            float detunedFreq = frequency + Mathf.Lerp(-detune*0.04f,detune*0.04f, (float)i/(numVoices-1));
 
             increment[i] = wavetableSize * detunedFreq / sampleRate / oversampling;
         }

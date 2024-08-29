@@ -27,11 +27,11 @@ public class KeyboardInput
             if (Input.GetKeyDown(kcode) && midiKeyBindings.ContainsKey(kcode))
             {
 
-                device.StartNote(midiKeyBindings[kcode] + octave * 12);
+                device.StartNote(midiKeyBindings[kcode] + octave * 12,0);
             }
             if (Input.GetKeyUp(kcode) && midiKeyBindings.ContainsKey(kcode))
             {
-                device.StopNote(midiKeyBindings[kcode] + octave * 12);
+                device.StopNote(midiKeyBindings[kcode] + octave * 12,0);
             }
         }
 

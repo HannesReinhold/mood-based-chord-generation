@@ -68,7 +68,7 @@ public class MarkovChainTest : MonoBehaviour
         chord = chain.GetNextChord(chord);
         Debug.Log("Play Chord " + chordNames[chord] +" in " + key.ToString() + " " + scaleMode.ToString());
         generator.StopAllNotes();
-        generator.StartNote(chord);
+        generator.StartNote(chord,0);
     }
 }
 

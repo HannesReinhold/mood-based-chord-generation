@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Windows;
+using MidiParser;
 
 public class SynthTest : MonoBehaviour
 {
@@ -10,6 +12,7 @@ public class SynthTest : MonoBehaviour
     private ChordGenerator chordGenerator = new ChordGenerator();
     private ChordGenerator chordGenerator2 = new ChordGenerator();
     private Arpeggiator arp = new Arpeggiator();
+    private MidiPlayer midiPlayer = new MidiPlayer(48000);
 
     public LineRenderer oscilloscope;
     private float[] dataCopy;
@@ -29,7 +32,7 @@ public class SynthTest : MonoBehaviour
     [Range(0, 1)] public float panning = 0.5f;
     [Range(0,1)]public float phaserFreq = 0;
     [Range(0, 10)] public float phaserFeedback = 0;
-    [Range(1, 32)] public int phaserStages = 4;
+    [Range(1, 32)] public int phaserStages = 5;
     public bool phaserPositiveFeedback = true;
     [Range(0, 20)] public float delayInMs = 0;
     [Range(0, 1)] public float delayFeedback = 0.5f;
@@ -45,7 +48,28 @@ public class SynthTest : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        input.device = synth;
+        midiPlayer.device = synth;
+        midiPlayer.midiFile = midiPlayer.midiFile = midiPlayer.SequenceToMidiFile(midiPlayer.noteNameSeqTonoteIDSeq(new List<string>() { "g6,0,200", "d#6,200,200", "c6,400,200", "d#6,600,200", "f6,800,200", "d#6,1000,200", "c6,1200,200", "d#6,1400,200" ,
+                                                                                                                                         "g6,1600,200", "d#6,1800,200", "c6,2000,200", "d#6,2200,200", "f6,2400,200", "d#6,2600,200", "c6,2800,200", "d#6,3000,200",
+                                                                                                                                         "g6,3200,200", "d#6,3400,200", "d6,3600,200", "d#6,3800,200", "a#6,4000,200", "d#6,4200,200", "d6,4400,200", "d#6,4600,200",
+                                                                                                                                         "g6,4800,200", "d#6,5000,200", "d6,5200,200", "d#6,5400,200", "a#6,5600,200", "d#6,5800,200", "d6,6000,200", "d#6,6200,200",
+                                                                                                                                         "d6,6400,200", "a#5,6600,200", "a5,6800,200", "a#5,7000,200", "f6,7200,200", "a#5,7400,200", "a5,7600,200", "a#5,7800,200",
+                                                                                                                                         "d6,8000,200", "a#5,8200,200", "a5,8400,200", "a#5,8600,200", "f6,8800,200", "a#5,9000,200", "a5,9200,200", "a#5,9400,200",
+                                                                                                                                         "d6,9600,200", "a#5,9800,200", "a5,10000,200", "a#5,10200,200", "f6,10400,200", "a#5,10600,200", "a5,10800,200", "a#5,11000,200",
+                                                                                                                                         "c6,11200,200", "a#5,11400,200", "a5,11600,200", "a#5,11800,200", "c6,12000,200", "a#5,12200,200", "a5,12400,200", "a#5,12600,200",
+                                                                                                                                         "c2,0,3200","d#2,3200,3200","a#2,6400,3200","f3,9600,3200","g3,0,3200","a#3,3200,3200","f3,6400,3200","c3,9600,3200",
+                                                                                                                                         "g5,0,400","g5,400,400","g5,800,400","g5,1200,400","g5,1600,400","g5,2000,400","g5,2400,400","g5,2800,400",
+                                                                                                                                         "d#5,0,400","d#5,400,400","d#5,800,400","d#5,1200,400","d#5,1600,400","d#5,2000,400","d#5,2400,400","d#5,2800,400",
+                                                                                                                                         "g5,3200,400","g5,3600,400","g5,4000,400","g5,4400,400","g5,4800,400","g5,5200,400","g5,5600,400","g5,6000,400",
+                                                                                                                                         "d#5,3200,400","d#5,3600,400","d#5,4000,400","d#5,4400,400","d#5,4800,400","d#5,5200,400","d#5,5600,400","d#5,6000,400",
+                                                                                                                                         "f5,6400,400","f5,6800,400","f5,7200,400","f5,7600,400","f5,8000,400","f5,8400,400","f5,8800,400","f5,9200,400",
+                                                                                                                                         "d5,6400,400","d5,6800,400","d5,7200,400","d5,7600,400","d5,8000,400","d5,8400,400","d5,8800,400","d5,9200,400",
+                                                                                                                                         "f5,9600,400","f5,10000,400","f5,10400,400","f5,10800,400","f5,11200,400","f5,11600,400","f5,12000,400","f5,12400,400",
+                                                                                                                                         "c5,9600,400","c5,10000,400","c5,10400,400","c5,10800,400","c5,11200,400","c5,11600,400","c5,12000,400","c5,12400,400"}));
+        
+        MidiFile file = new MidiFile(File.ReadAllBytes(Application.dataPath + "/Ressources/Never-Gonna-Give-You-Up-3.mid"));
+        midiPlayer.SetMidiFile(file, 1);
+
         //input.device = arp;
         chordGenerator.device = arp;
         chordGenerator.octave = 4;
@@ -62,11 +86,6 @@ public class SynthTest : MonoBehaviour
         synth.PrepareToPlay();
         synth2.PrepareToPlay();
 
-        synth.attack = attack;
-        synth2.release = release;
-        synth2.lowerThreshold = lowerThreshold;
-        synth2.upperThreshold = upperThreshold;
-        synth2.ratio = ratio;
 
         for(int i=0; i<synth2.maxVoices; i++)
         {
@@ -77,12 +96,20 @@ public class SynthTest : MonoBehaviour
         arp.rate = 1 / 4f;
 
         timer = 60f / bpm * rate;
+
+
+        for(int i=0; i<midiPlayer.midiFile.Count; i++)
+        {
+            //Debug.Log((midiPlayer.midiFile[i].midiEvent == MidiEvent.NoteOn ? "Play " : "Stop ") + "note " + midiPlayer.midiFile[i].noteIndex + " at time " + midiPlayer.midiFile[i].absoluteTime+", "+midiPlayer.midiFile[i].timeToNextEvent);
+            
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
         input.Update();
+        arp.rate = phaserFreq;
 
 
         oscilloscope.positionCount = dataCopy.Length / 2;
@@ -103,17 +130,6 @@ public class SynthTest : MonoBehaviour
         synth.phaserFeedback = phaserFeedback;
         synth.phaserStages = phaserStages;
         synth.phaserPositiveFeedback = phaserPositiveFeedback;
-
-        synth.delayInMs = delayInMs;
-        synth.delayFeedback = delayFeedback;
-
-        synth.band = band;
-
-        synth.attack = attack;
-        synth.release = release;
-        synth.lowerThreshold = lowerThreshold;
-        synth.upperThreshold = upperThreshold;
-        synth.ratio = ratio;
         synth.panning = panning;
     }
 
@@ -136,6 +152,7 @@ public class SynthTest : MonoBehaviour
             }
 
             //arp.UpdateArp();
+            midiPlayer.Update();
         }
 
 
@@ -144,5 +161,7 @@ public class SynthTest : MonoBehaviour
         //synth2.ProcessBlock(data,channels);
 
         dataCopy = data;
+
+        Debug.Log(data.Length);
     }
 }

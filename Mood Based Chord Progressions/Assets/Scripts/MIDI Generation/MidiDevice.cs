@@ -7,8 +7,8 @@ public abstract class MidiDevice
 
     public MidiDevice device;
 
-    public abstract void StartNote(int noteID);
-    public abstract void StopNote(int noteID);
+    public abstract void StartNote(int noteID, int timeOffset);
+    public abstract void StopNote(int noteID, int timeOffset);
 
     public abstract void StopAllNotes();
 }
