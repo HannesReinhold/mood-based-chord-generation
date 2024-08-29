@@ -13,6 +13,7 @@ public class SynthTest : MonoBehaviour
     private ChordGenerator chordGenerator2 = new ChordGenerator();
     private Arpeggiator arp = new Arpeggiator();
     private MidiPlayer midiPlayer = new MidiPlayer(48000);
+    private Spatializer spatializer = new Spatializer(48000);
 
     public LineRenderer oscilloscope;
     private float[] dataCopy;
@@ -43,6 +44,8 @@ public class SynthTest : MonoBehaviour
     [Range(-50, 10)] public float upperThreshold;
     [Range(-50, 10)] public float lowerThreshold;
     [Range(0, 10)] public float ratio;
+
+    private Transform camTransform;
 
 
     // Start is called before the first frame update
@@ -111,6 +114,7 @@ public class SynthTest : MonoBehaviour
         input.Update();
         arp.rate = phaserFreq;
 
+        spatializer.SetDirection(Camera.main.transform.InverseTransformPoint(transform.position).normalized, Vector3.Distance(Camera.main.transform.position, transform.position));
 
         oscilloscope.positionCount = dataCopy.Length / 2;
         for (int i = 0; i < dataCopy.Length; i += 2)
@@ -131,6 +135,8 @@ public class SynthTest : MonoBehaviour
         synth.phaserStages = phaserStages;
         synth.phaserPositiveFeedback = phaserPositiveFeedback;
         synth.panning = panning;
+
+        
     }
 
     private void OnAudioFilterRead(float[] data, int channels)
@@ -159,9 +165,10 @@ public class SynthTest : MonoBehaviour
         
         synth.ProcessBlock(data, channels);
         //synth2.ProcessBlock(data,channels);
+        spatializer.ProcessBlock(data, channels);
 
         dataCopy = data;
 
-        Debug.Log(data.Length);
+        //Debug.Log(data.Length);
     }
 }
