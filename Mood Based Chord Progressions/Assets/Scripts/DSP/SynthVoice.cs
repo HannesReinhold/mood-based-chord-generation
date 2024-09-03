@@ -1,15 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class SynthVoice
 {
 
     public WavetableOscillator oscillator1;
-    private ADSR adsr;
-    private ADSR adsrLowpass;
+    public ADSR adsr;
+    public ADSR adsrLowpass;
     public Biquad lowpass;
 
+    private System.Random rand = new System.Random();
 
     private bool canPlay;
     private bool isPlaying;
@@ -26,6 +28,10 @@ public class SynthVoice
 
     public int startTimer=0;
     public int startTime=0;
+
+
+    public float filterFreq = 0.7f;
+    public float noiseVolume = 0;
 
     public SynthVoice(int numChannels)
     {
@@ -52,7 +58,7 @@ public class SynthVoice
         this.startTime = startTime;
         startTimer = 0;
 
-        oscillator1.SetFrequency(MathUtils.NoteToFreq(midiNote));
+        oscillator1.SetFrequency(MathUtils.NoteToFreq(midiNote-5));
         oscillator1.Reset();
 
 
@@ -110,14 +116,14 @@ public class SynthVoice
             if (filterUpdateTimer >= 10)
             {
                 float adsrLowValue = adsrLowpass.GetValue();
-                lowpass.CalcCoeffs(MathUtils.NoteToFreq(adsrLowValue*120), 0.7f, 0, BiquadType.Lowpass);
+                lowpass.CalcCoeffs(MathUtils.NoteToFreq(adsrLowValue*120), filterFreq, 0, BiquadType.Lowpass);
                 filterUpdateTimer = 0;
             }
             filterUpdateTimer++;
             output = lowpass.Process(output);
             for (int channel=0; channel<numChannels; channel++)
             {
-                data[sample + channel] += output;
+                data[sample + channel] += output + (float)rand.NextDouble()*noiseVolume;
             }
         }
     }

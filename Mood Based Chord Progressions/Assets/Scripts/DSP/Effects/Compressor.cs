@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class Compressor
 {
-    public float upperThreshold = -5;
-    public float lowerThreshold = -5;
-    public float downwardsRatio = 32;
-    public float upwardsRatio = 32;
-    public float attack;
-    public float release;
+    public float upperThreshold = -8;
+    public float lowerThreshold = -8;
+    public float downwardsRatio = 8;
+    public float upwardsRatio = 8;
+    public float attack = 2;
+    public float release = 20;
 
 
     private float[] lookaheadBuffer;
@@ -24,6 +24,9 @@ public class Compressor
     {
         bufferSize = s;
         lookaheadBuffer = new float[bufferSize];
+
+        SetAttack(attack);
+        SetRelease(release);
     }
 
     public void SetAttack(float attack)

@@ -6,18 +6,19 @@ using MidiParser;
 
 public class SynthTest : MonoBehaviour
 {
-    private KeyboardInput input = new KeyboardInput();
-    private Synthesizer synth = new Synthesizer();
-    private Synthesizer synth2 = new Synthesizer();
-    private ChordGenerator chordGenerator = new ChordGenerator();
-    private ChordGenerator chordGenerator2 = new ChordGenerator();
-    private Arpeggiator arp = new Arpeggiator();
-    private MidiPlayer midiPlayer = new MidiPlayer(48000);
+    private Synthesizer bassSynth = new Synthesizer();
+    private Synthesizer chordSynth = new Synthesizer();
+    private Synthesizer leadSynth = new Synthesizer();
+
+
+    private MidiPlayer midiPlayerBass = new MidiPlayer(48000);
+    private MidiPlayer midiPlayerChord = new MidiPlayer(48000);
+    private MidiPlayer midiPlayerLead = new MidiPlayer(48000);
+
+    private Spatializer spatializer = new Spatializer(48000);
 
     public LineRenderer oscilloscope;
     private float[] dataCopy;
-
-    public MarkovChain chain = new MarkovChain();
 
     private float timer = 0;
     private float bpm = 140;
@@ -26,29 +27,33 @@ public class SynthTest : MonoBehaviour
     private int chord = 0;
 
 
-    public List<int> chords;
-    int chordIndex = 0;
+    [Range(0, 100)] public float detune = 1;
+    [Header("Filters")]
+    [Range(20, 20000)] public float preDistFilterFreq = 1000;
+    [Range(0.01f, 10)] public float preDistFilterQ = 1;
+    [Range(20, 20000)] public float postDistFilterFreq = 1000;
+    [Range(0.01f, 10)] public float postDistFilterQ = 1;
+    [Header("Distortion")]
+    [Range(0, 100)] public float distortionDrive = 1;
+    [Range(-1, 1)] public float distortionDCOffset = 1;
+    [Header("Phaser")]
+    [Range(0, 32)] public int phaserNumStages = 8;
+    [Range(0, 1)] public float phaserFreq = 0.5f;
+    [Range(0, 1)] public float phaserFeedback = 0.5f;
+    [Range(0, 1)] public float phaserLfoStrength = 0.1f;
+    
 
-    [Range(0, 1)] public float panning = 0.5f;
-    [Range(0,1)]public float phaserFreq = 0;
-    [Range(0, 10)] public float phaserFeedback = 0;
-    [Range(1, 32)] public int phaserStages = 5;
-    public bool phaserPositiveFeedback = true;
-    [Range(0, 20)] public float delayInMs = 0;
-    [Range(0, 1)] public float delayFeedback = 0.5f;
-    [Range(0, 2)] public int band=0;
 
-    [Range(0, 100)] public float attack;
-    [Range(0, 100)] public float release;
-    [Range(-50, 10)] public float upperThreshold;
-    [Range(-50, 10)] public float lowerThreshold;
-    [Range(0, 10)] public float ratio;
+    private Transform camTransform;
 
 
     // Start is called before the first frame update
     void Start()
     {
-        midiPlayer.device = synth;
+        midiPlayerBass.device = bassSynth;
+        midiPlayerChord.device = chordSynth;
+        midiPlayerLead.device = leadSynth;
+        /*
         midiPlayer.midiFile = midiPlayer.midiFile = midiPlayer.SequenceToMidiFile(midiPlayer.noteNameSeqTonoteIDSeq(new List<string>() { "g6,0,200", "d#6,200,200", "c6,400,200", "d#6,600,200", "f6,800,200", "d#6,1000,200", "c6,1200,200", "d#6,1400,200" ,
                                                                                                                                          "g6,1600,200", "d#6,1800,200", "c6,2000,200", "d#6,2200,200", "f6,2400,200", "d#6,2600,200", "c6,2800,200", "d#6,3000,200",
                                                                                                                                          "g6,3200,200", "d#6,3400,200", "d6,3600,200", "d#6,3800,200", "a#6,4000,200", "d#6,4200,200", "d6,4400,200", "d#6,4600,200",
@@ -66,58 +71,57 @@ public class SynthTest : MonoBehaviour
                                                                                                                                          "d5,6400,400","d5,6800,400","d5,7200,400","d5,7600,400","d5,8000,400","d5,8400,400","d5,8800,400","d5,9200,400",
                                                                                                                                          "f5,9600,400","f5,10000,400","f5,10400,400","f5,10800,400","f5,11200,400","f5,11600,400","f5,12000,400","f5,12400,400",
                                                                                                                                          "c5,9600,400","c5,10000,400","c5,10400,400","c5,10800,400","c5,11200,400","c5,11600,400","c5,12000,400","c5,12400,400"}));
-        
-        MidiFile file = new MidiFile(File.ReadAllBytes(Application.dataPath + "/Ressources/Never-Gonna-Give-You-Up-3.mid"));
-        midiPlayer.SetMidiFile(file, 1);
+        */
 
-        //input.device = arp;
-        chordGenerator.device = arp;
-        chordGenerator.octave = 4;
-        chordGenerator.has3rd = true;
-        chordGenerator.has5th = true;
-
-        chordGenerator2.device = synth2;
-        chordGenerator2.octave = 5;
-        //chordGenerator2.has9th = true;
-
-        chordGenerator.scaleMode = Scale.Minor;
-        chordGenerator2.scaleMode = Scale.Minor;
-
-        synth.PrepareToPlay();
-        synth2.PrepareToPlay();
+        //MidiFile file = new MidiFile(File.ReadAllBytes(Application.dataPath + "/Ressources/Never-Gonna-Give-You-Up-3.mid"));
+        //midiPlayer.SetMidiFile(file, 1);
+        midiPlayerBass.midiFile = midiPlayerBass.SequenceToMidiFile(midiPlayerBass.noteNameSeqTonoteIDSeq(new List<string>() { "f2,0,64000", "f2,64000,64000"}));
+        midiPlayerChord.midiFile = midiPlayerChord.SequenceToMidiFile(midiPlayerChord.noteNameSeqTonoteIDSeq(new List<string>() { "c4,0,1600", "d#4,0,1600", "g#4,0,1600", "a#3,1600,1600", "d#4,1600,1600", "g#4,1600,1600"}));
+        midiPlayerLead.midiFile = midiPlayerLead.SequenceToMidiFile(midiPlayerLead.noteNameSeqTonoteIDSeq(new List<string>() { "g#5,0,400", "g#5,400,400"}));
 
 
-        for(int i=0; i<synth2.maxVoices; i++)
-        {
-            synth2.voices[i].oscillator1.detune = 30;
-        }
+        bassSynth.PrepareToPlay();
+        chordSynth.PrepareToPlay();
+        leadSynth.PrepareToPlay();
 
-        arp.bpm = 140;
-        arp.rate = 1 / 4f;
+        bassSynth.SetVoiceFilterFrequency(0.3f);
+        bassSynth.SetVoiceVoiceCount(2);
+        bassSynth.SetNoiseVolume(0.00f);
+        bassSynth.SetDetune(10);
+        bassSynth.SetADSR(0.01f,1,1,0.01f);
 
-        timer = 60f / bpm * rate;
+        bassSynth.SetPreDistFilter(1000,0.8f, 0, BiquadType.Highpass);
+        bassSynth.SetPostDistFilter(3000, 0.8f, 0, BiquadType.Lowpass);
+        bassSynth.softClip.SetDrive(100);
 
-
-        for(int i=0; i<midiPlayer.midiFile.Count; i++)
-        {
-            //Debug.Log((midiPlayer.midiFile[i].midiEvent == MidiEvent.NoteOn ? "Play " : "Stop ") + "note " + midiPlayer.midiFile[i].noteIndex + " at time " + midiPlayer.midiFile[i].absoluteTime+", "+midiPlayer.midiFile[i].timeToNextEvent);
-            
-        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        input.Update();
-        arp.rate = phaserFreq;
+
+        bassSynth.SetDetune(detune);
+        bassSynth.SetADSR(0.01f, 1, 1, 0.01f);
+
+        bassSynth.SetPreDistFilter(preDistFilterFreq, preDistFilterQ, 0, BiquadType.Lowpass);
+        bassSynth.SetPostDistFilter(postDistFilterFreq, postDistFilterQ, 0, BiquadType.Lowpass);
+        bassSynth.softClip.SetDrive(distortionDrive);
+        bassSynth.softClip.SetDcOffset(distortionDCOffset);
+        bassSynth.SetPhaser(phaserNumStages, phaserFreq, phaserFeedback, phaserLfoStrength);
 
 
+        // update spatializer
+        spatializer.SetDirection(Camera.main.transform.InverseTransformPoint(transform.position).normalized, Vector3.Distance(Camera.main.transform.position, transform.position));
+
+
+        // draw oscilloscope
         oscilloscope.positionCount = dataCopy.Length / 2;
         for (int i = 0; i < dataCopy.Length; i += 2)
         {
-            //oscilloscope.SetPosition(i / 2, new Vector3(Mathf.Lerp(-1, 1, (float)i / dataCopy.Length), dataCopy[i] * 0.25f, 0));
+            oscilloscope.SetPosition(i / 2, new Vector3(Mathf.Lerp(-1, 1, (float)i / dataCopy.Length), dataCopy[i] * 0.25f, 0));
         }
 
+        /*
         float[] coeffs = BiquadCalculator.CalcCoeffs(phaserFreq*24000, phaserFeedback, 0, BiquadType.Lowpass, 48000);
         for (int i = 0; i < 1024; i += 1)
         {
@@ -125,43 +129,30 @@ public class SynthTest : MonoBehaviour
             float f = MathUtils.DbToLin(fLog);
             oscilloscope.SetPosition(i / 2, new Vector3(Mathf.Lerp(-1, 1, (float)i / dataCopy.Length), BiquadCalculator.GetFrequencyResponse(f,coeffs, 48000)*2-1, 0));
         }
-
-        synth.phaserFreq = phaserFreq;
-        synth.phaserFeedback = phaserFeedback;
-        synth.phaserStages = phaserStages;
-        synth.phaserPositiveFeedback = phaserPositiveFeedback;
-        synth.panning = panning;
+        */
+        
     }
 
     private void OnAudioFilterRead(float[] data, int channels)
     {
         for (int i = 0; i < data.Length; i += channels)
         {
-            timer+= 1f / 48000f;
-            if(timer > 60f / bpm * rate)
-            {
-                timer = 0;
-                chord = chords[chordIndex];
-                chordIndex++;
-                if (chordIndex >= chords.Count) chordIndex = 0;
-                //chordGenerator.StopAllNotes();
-                //chordGenerator.StartNote(chord);
-
-                //chordGenerator2.StopAllNotes();
-                //chordGenerator2.StartNote(chord);
-            }
-
-            //arp.UpdateArp();
-            midiPlayer.Update();
+            midiPlayerBass.Update();
+            //midiPlayerChord.Update();
+            //midiPlayerLead.Update();
         }
 
 
         
-        synth.ProcessBlock(data, channels);
+        bassSynth.ProcessBlock(data, channels);
+        //chordSynth.ProcessBlock(data, channels);
+        //leadSynth.ProcessBlock(data, channels);
         //synth2.ProcessBlock(data,channels);
+
+        //spatializer.ProcessBlock(data, channels);
 
         dataCopy = data;
 
-        Debug.Log(data.Length);
+        //Debug.Log(data.Length);
     }
 }

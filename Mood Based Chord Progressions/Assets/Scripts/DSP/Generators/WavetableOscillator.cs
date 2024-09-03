@@ -153,6 +153,12 @@ public class WavetableOscillator
         }
     }
 
+    public void SetDetune(float detune)
+    {
+        this.detune = detune;
+        SetFrequency(frequency);
+    }
+
     public void SetFrequency(float f)
     {
         frequency = f;
