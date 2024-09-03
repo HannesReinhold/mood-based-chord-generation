@@ -20,6 +20,10 @@ public class FeedbackDelay
 
     private float smoothedDelayInSamples;
 
+    private FirstOrderLowpass filter = new FirstOrderLowpass();
+    public float filterFreq = 0.1f;
+    public float smoothedFilterFreq = 0.1f;
+
 
     public void SetDelayInMs(float del)
     {
@@ -39,7 +43,7 @@ public class FeedbackDelay
 
     public void SetDelayInHz(float freq)
     {
-        delayInSamples = 1+ freq * 0.001f * sampleRate;
+        delayInSamples = 1 + sampleRate / (freq != 0 ? freq : 1);
     }
 
 
@@ -52,13 +56,15 @@ public class FeedbackDelay
 
     public float Process(float input)
     {
+
+        smoothedFilterFreq = 0.5f * smoothedFilterFreq + 0.5f * filterFreq;
         smoothedDelayInSamples = smoothedDelayInSamples * delaySmoothing + delayInSamples * (1-delaySmoothing);
 
         readPointer = writePointer - (int)smoothedDelayInSamples;
         while (readPointer < 0) readPointer += bufferSize;
 
         //buffer[writePointer] *= feedback;
-        buffer[writePointer] = (positiveFeedback ? buffer[(int)readPointer] : -buffer[(int)readPointer]) * feedback + input;
+        buffer[writePointer] = filter.ProcessSample((positiveFeedback ? buffer[(int)readPointer] : -buffer[(int)readPointer]) * feedback,0.9f) + input;
 
         writePointer = (writePointer + 1) % bufferSize;
 
