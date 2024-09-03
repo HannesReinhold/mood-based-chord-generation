@@ -38,6 +38,16 @@ public class ADSR
         totalTime = a + d + r;
     }
 
+    public void Set(float a, float d, float s, float r)
+    {
+        attack = a;
+        decay = d;
+        sustain = s;
+        release = r;
+
+        totalTime = a + d + r;
+    }
+
     public void Start()
     {
         time = 0;

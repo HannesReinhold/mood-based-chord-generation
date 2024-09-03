@@ -46,7 +46,7 @@ public class Chorus
         {
             delays[i] = new FeedbackDelay(48000, 5000);
             pannings[i] = (float)i /(maxDelays-1);
-            Debug.Log(pannings[i]);
+            //Debug.Log(pannings[i]);
         }
         if (maxNumDelays == 1) pannings[0] = 0.5f;
 

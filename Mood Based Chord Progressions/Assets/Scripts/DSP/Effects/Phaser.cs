@@ -15,6 +15,11 @@ public class Phaser
 
     private FirstOrderAllpass[] allpasses;
 
+    public float lfoStrength;
+
+    private float realFc = 0;
+    private float phase = 0;
+
     public Phaser()
     {
         allpasses = new FirstOrderAllpass[maxStages];
@@ -26,10 +31,13 @@ public class Phaser
 
     public float Process(float input)
     {
-        float sum = input + z0;
+        realFc = Mathf.Clamp(fc + Mathf.Sin(phase)*lfoStrength,0.0001f,0.9999f);
+        phase += 1f / 48000f;
+
+        float sum = input + z0 * feedback;
         for(int i=0; i<numStages; i++)
         {
-            sum = allpasses[i].ProcessSample(sum, 1-fc);
+            sum = allpasses[i].ProcessSample(sum, 1-realFc);
         }
         z0 = (1 - feedback) * z0 + (positiveFeedback ? sum : -sum) * (feedback);
         return input + sum;

@@ -28,16 +28,98 @@ public class Synthesizer : MidiDevice
     public SynthVoice[] voices;
 
     // possible Effects
-    private Biquad filter = new Biquad();
-    private Chorus chorus = new Chorus(48000, 5000, 8);
-    private Haas haas = new Haas(48000);
-    private Panner panner = new Panner();
-    private RingModulation ringMod = new RingModulation(48000);
-    private Granular granular = new Granular(48000, 48000*5, 20);
+
+
+    public Biquad preDistFilterLeft = new Biquad();
+    public Biquad preDistFilterRight = new Biquad();
+    public HardClip softClip = new HardClip();
+    public Biquad postDistFilterLeft = new Biquad();
+    public Biquad postDistFilterRight = new Biquad();
+    public Chorus chorus = new Chorus(48000, 5000, 8);
+    public Haas haas = new Haas(48000);
+    public Panner panner = new Panner();
+    public Compressor compLeft = new Compressor(100);
+    public Compressor compRight = new Compressor(100);
+
+    public Phaser phaserLeft = new Phaser();
+    public Phaser phaserRight = new Phaser();
+
+
 
 
     private LFO lfo1 = new LFO(48000);
-    
+
+    public void SetVoiceFilterFrequency(float f)
+    {
+        for (int i = 0; i < voices.Length; i++)
+        {
+            voices[i].filterFreq = f;
+        }
+    }
+
+    public void SetVoiceVoiceCount(int n)
+    {
+        for (int i = 0; i < voices.Length; i++)
+        {
+            voices[i].oscillator1.numVoices = n;
+        }
+    }
+    public void SetDetune(float d)
+    {
+        for (int i = 0; i < voices.Length; i++)
+        {
+            voices[i].oscillator1.SetDetune(d);
+        }
+    }
+
+    public void SetNoiseVolume(float v)
+    {
+        for (int i = 0; i < voices.Length; i++)
+        {
+            voices[i].noiseVolume = v;
+        }
+    }
+
+    public void SetADSR(float a, float d, float s, float r)
+    {
+        for (int i = 0; i < voices.Length; i++)
+        {
+            voices[i].adsr.Set(a, d, s, r);
+            voices[i].adsrLowpass.Set(a, d, s, r);
+        }
+    }
+
+    public void SetPreDistFilter(float f, float q, float gain, BiquadType type)
+    {
+        preDistFilterLeft.CalcCoeffs(f,q,gain, type);
+        preDistFilterRight.CalcCoeffs(f, q, gain, type);
+    }
+
+    public void SetPostDistFilter(float f, float q, float gain, BiquadType type)
+    {
+        postDistFilterLeft.CalcCoeffs(f, q, gain, type);
+        postDistFilterRight.CalcCoeffs(f, q, gain, type);
+    }
+
+    public void SetCompressor(float att, float rel, float ratDown, float ratUp, float thrDown, float thrUp)
+    {
+        //compLeft.Set
+
+    }
+
+    public void SetPhaser(int n, float f, float feed, float lfoSt)
+    {
+        phaserLeft.numStages = n;
+        phaserLeft.fc = f;
+        phaserLeft.feedback = feed;
+        phaserLeft.lfoStrength = lfoSt;
+
+        phaserRight.numStages = n;
+        phaserRight.fc = f;
+        phaserRight.feedback = feed;
+        phaserRight.lfoStrength = lfoSt;
+    }
+
 
 
     public override void StartNote(int noteID, int startOffset)
@@ -149,12 +231,32 @@ public class Synthesizer : MidiDevice
         
 
         // Process effects
+        
         for (int i=0; i<data.Length; i+=2)
         {
+            data[i] = preDistFilterLeft.Process(data[i]);
+            data[i+1] = preDistFilterRight.Process(data[i+1]);
 
+            data[i] = softClip.ProcesSample(data[i]);
+            data[i+1] = softClip.ProcesSample(data[i + 1]);
+
+            data[i] = postDistFilterLeft.Process(data[i]);
+            data[i+1] = postDistFilterRight.Process(data[i + 1]);
+
+            data[i] = compLeft.Process(data[i]);
+            data[i + 1] = compLeft.Process(data[i + 1]);
+
+            data[i] = phaserLeft.Process(data[i]);
+            data[i+1] = phaserLeft.Process(data[i+1]);
         }
+        
 
-        granular.ProcessBlock(data, numChannels);
+
+
+
+
+        //granular.ProcessBlock(data, numChannels);
+        
         chorus.ProcessBlock(data, numChannels);
 
     }

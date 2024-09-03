@@ -81,6 +81,6 @@ public class Spatializer
 
         attenuation = 0.1f / Mathf.Max(0.1f, Mathf.Pow(distance,0.95f)*0.45f);
 
-        Debug.Log("ITD: "+itdLeft+" "+itdRight + ", ILD: "+ildLeft+" "+ildRight+", IID: "+iidLeft+" "+iidRight);
+        //Debug.Log("ITD: "+itdLeft+" "+itdRight + ", ILD: "+ildLeft+" "+ildRight+", IID: "+iidLeft+" "+iidRight);
     }
 }
